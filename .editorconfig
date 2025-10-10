@@ -1,0 +1,20 @@
+# .editorconfig
+
+# Root of the EditorConfig file
+root = true
+
+# Set default editor settings for all files
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+
+# Apply to all .tsx files
+[*.tsx]
+indent_style = space
+indent_size = 2
+
+# Apply to all .ts files
+[*.ts]
+indent_style = space
+indent_size = 2

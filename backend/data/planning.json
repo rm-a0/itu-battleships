@@ -1,0 +1,146 @@
+{
+  "player_grid": {
+    "gridSize": 7,
+    "tiles": [
+      [
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty"
+      ],
+      [
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty"
+      ],
+      [
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty"
+      ],
+      [
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty"
+      ],
+      [
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty"
+      ],
+      [
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty"
+      ],
+      [
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty"
+      ]
+    ]
+  },
+  "all_ships": [
+    {
+      "id": 1,
+      "size": 2,
+      "color": "purple",
+      "rotation": 0,
+      "name": "ship1"
+    },
+    {
+      "id": 2,
+      "size": 2,
+      "color": "orange",
+      "rotation": 0,
+      "name": "ship2"
+    },
+    {
+      "id": 3,
+      "size": 3,
+      "color": "green",
+      "rotation": 0,
+      "name": "ship3"
+    },
+    {
+      "id": 4,
+      "size": 3,
+      "color": "blue",
+      "rotation": 0,
+      "name": "ship4"
+    },
+    {
+      "id": 5,
+      "size": 4,
+      "color": "grey",
+      "rotation": 0,
+      "name": "ship5"
+    }
+  ],
+  "available_ships": [
+    {
+      "id": 1,
+      "size": 2,
+      "color": "purple",
+      "rotation": 0,
+      "name": "ship1"
+    },
+    {
+      "id": 2,
+      "size": 2,
+      "color": "orange",
+      "rotation": 0,
+      "name": "ship2"
+    },
+    {
+      "id": 3,
+      "size": 3,
+      "color": "green",
+      "rotation": 0,
+      "name": "ship3"
+    },
+    {
+      "id": 4,
+      "size": 3,
+      "color": "blue",
+      "rotation": 0,
+      "name": "ship4"
+    },
+    {
+      "id": 5,
+      "size": 4,
+      "color": "grey",
+      "rotation": 0,
+      "name": "ship5"
+    }
+  ],
+  "placed_ships": null,
+  "active_ship": null
+}
