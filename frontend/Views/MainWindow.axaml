@@ -9,9 +9,7 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="BattleshipsAvalonia"
         WindowStartupLocation="CenterScreen"
-        CanResize="False"
         Width="412" Height="917"
-        SystemDecorations="None"
         Background="{StaticResource Background}">
 
     <Design.DataContext>
@@ -20,6 +18,68 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <StackPanel HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Spacing="20"
+                MaxWidth="280">
+
+        <Border Padding="20,10"
+                HorizontalAlignment="Stretch"
+                Margin="0,0,0,20">
+            <StackPanel Spacing="5">
+                <TextBlock Text="Sink Simulator"
+                        FontSize="42"
+                        FontWeight="Bold"
+                        Foreground="{StaticResource TextPrimary}"
+                        VerticalAlignment="Bottom"
+                        TextWrapping="Wrap"
+                        HorizontalAlignment="Left" />
+                <TextBlock Text="by xrepcim00"
+                        FontSize="16"
+                        FontStyle="Italic"
+                        Foreground="{StaticResource TextSecondary}"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Left" />
+            </StackPanel>
+        </Border>
+
+        <Border CornerRadius="20"
+                Background="{StaticResource Secondary}"
+                Padding="5"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Margin="0,0,0,50">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="10"
+                        HorizontalAlignment="Center">
+                <Button Content="&lt;"
+                        Classes="board-size-button"
+                        Foreground="{StaticResource TextPrimary}"
+                        Background="{StaticResource Secondary}"
+                        Click="OnDecreaseBoardSize" />
+                <TextBlock x:Name="BoardSizeDisplay"
+                        Text="8x8"
+                        FontSize="16"
+                        Foreground="{StaticResource TextPrimary}"
+                        VerticalAlignment="Center"
+                        Margin="10,0" />
+                <Button Content="&gt;"
+                        Foreground="{StaticResource TextPrimary}"
+                        Classes="board-size-button"
+                        Background="{StaticResource Secondary}"
+                        Click="OnIncreaseBoardSize" />
+            </StackPanel>
+        </Border>
+
+        <Button Content="Play"
+                Padding="20,10"
+                CornerRadius="20"
+                Background="{StaticResource Primary}"
+                Foreground="{StaticResource TextPrimary}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Click="OnPlayButtonClick" />
+
+    </StackPanel>
 
 </Window>
