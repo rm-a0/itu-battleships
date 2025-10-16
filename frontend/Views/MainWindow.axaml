@@ -10,76 +10,79 @@
         Title="BattleshipsAvalonia"
         WindowStartupLocation="CenterScreen"
         Width="412" Height="917"
+        MinWidth="412" MinHeight="600"
         Background="{StaticResource Background}">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <StackPanel HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Spacing="20"
-                MaxWidth="280">
+    <Grid RowDefinitions="*,*,*" 
+          HorizontalAlignment="Center"
+          VerticalAlignment="Stretch"
+          MaxWidth="280">
 
-        <Border Padding="20,10"
+        <Border Grid.Row="0"
+                Padding="20,10"
                 HorizontalAlignment="Stretch"
-                Margin="0,0,0,20">
+                VerticalAlignment="Bottom">
             <StackPanel Spacing="5">
-                <TextBlock Text="Sink Simulator"
-                        FontSize="42"
-                        FontWeight="Bold"
-                        Foreground="{StaticResource TextPrimary}"
-                        VerticalAlignment="Bottom"
-                        TextWrapping="Wrap"
-                        HorizontalAlignment="Left" />
-                <TextBlock Text="by xrepcim00"
-                        FontSize="16"
-                        FontStyle="Italic"
-                        Foreground="{StaticResource TextSecondary}"
-                        VerticalAlignment="Top"
-                        HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding AppName}"
+                           FontSize="50"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource TextPrimary}"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding AuthorName}"
+                           FontSize="16"
+                           Foreground="{StaticResource TextSecondary}"
+                           HorizontalAlignment="Left" />
             </StackPanel>
         </Border>
 
-        <Border CornerRadius="20"
+        <Border Grid.Row="1"
+                CornerRadius="22"
+                Height="41"
+                Width="205"
                 Background="{StaticResource Secondary}"
-                Padding="5"
                 HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Margin="0,0,0,50">
+                VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal"
-                        Spacing="10"
+                        Spacing="30"
                         HorizontalAlignment="Center">
                 <Button Content="&lt;"
                         Classes="board-size-button"
                         Foreground="{StaticResource TextPrimary}"
                         Background="{StaticResource Secondary}"
-                        Click="OnDecreaseBoardSize" />
+                        Command="{Binding IncreaseBoardSizeCommand}"/>
                 <TextBlock x:Name="BoardSizeDisplay"
-                        Text="8x8"
-                        FontSize="16"
-                        Foreground="{StaticResource TextPrimary}"
-                        VerticalAlignment="Center"
-                        Margin="10,0" />
+                           Text="{Binding BoardSizeDisplay}"
+                           FontSize="16"
+                           Foreground="{StaticResource TextPrimary}"
+                           VerticalAlignment="Center"
+                           Margin="10,0" />
                 <Button Content="&gt;"
                         Foreground="{StaticResource TextPrimary}"
                         Classes="board-size-button"
                         Background="{StaticResource Secondary}"
-                        Click="OnIncreaseBoardSize" />
+                        Command="{Binding DecreaseBoardSizeCommand}"/>
             </StackPanel>
         </Border>
 
-        <Button Content="Play"
-                Padding="20,10"
-                CornerRadius="20"
+        <Button Grid.Row="2"
+                Width="234"
+                Height="58"
+                CornerRadius="26"
                 Background="{StaticResource Primary}"
                 Foreground="{StaticResource TextPrimary}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Click="OnPlayButtonClick" />
+                Command="{Binding PlayCommand}">
+            <TextBlock Text="PLAY"
+                       FontSize="32"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Button>
 
-    </StackPanel>
-
+    </Grid>
 </Window>
