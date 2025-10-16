@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:BattleshipsAvalonia.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="412" d:DesignHeight="917"
+        x:Class="BattleshipsAvalonia.Views.PlanningBoard"
+        x:DataType="vm:PlanningBoardViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="BattleshipsAvalonia - Planning"
+        WindowStartupLocation="CenterScreen"
+        Width="412" Height="917"
+        MinWidth="412" MinHeight="600"
+        Background="{StaticResource Background}">
+    <Design.DataContext>
+        <vm:PlanningBoardViewModel />
+    </Design.DataContext>
+
+</Window>

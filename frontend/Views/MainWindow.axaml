@@ -77,7 +77,8 @@
                 Foreground="{StaticResource TextPrimary}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Command="{Binding PlayCommand}">
+                Command="{Binding PlayCommand}"
+                CommandParameter="{Binding $parent[Window]}">
             <TextBlock Text="PLAY"
                        FontSize="32"
                        HorizontalAlignment="Center"

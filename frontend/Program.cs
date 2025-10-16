@@ -1,21 +1,36 @@
 ﻿using Avalonia;
-using System;
+using Avalonia.Controls;
+using Microsoft.Extensions.DependencyInjection;
+using BattleshipsAvalonia.Services;
+using BattleshipsAvalonia.ViewModels;
+using BattleshipsAvalonia.Views;
 
 namespace BattleshipsAvalonia;
 
-sealed class Program
+class Program
 {
-    // Initialization code. Don't use any Avalonia, third-party APIs or any
-    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-    // yet and stuff might break.
-    [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+    public static void Main(string[] args)
+    {
+        var services = new ServiceCollection();
 
-    // Avalonia configuration, don't remove; also used by visual designer.
+        services.AddSingleton<ApiService>();
+
+        services.AddTransient<MainWindowViewModel>();
+        services.AddTransient<PlanningBoardViewModel>();
+
+        services.AddTransient<MainWindow>();
+        services.AddTransient<PlanningBoard>();
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        BuildAvaloniaApp()
+            .WithInterFont()
+            .UsePlatformDetect()
+            .StartWithClassicDesktopLifetime(args);
+    }
+
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
-            .WithInterFont()
             .LogToTrace();
 }

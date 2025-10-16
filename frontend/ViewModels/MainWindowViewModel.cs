@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;
+using BattleshipsAvalonia.Views;
 
 namespace BattleshipsAvalonia.ViewModels;
 
@@ -34,13 +35,11 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void Play()
+    private void Play(Window window)
     {
-        // var planningWindow = new PlanningBoard
-        // {
-        //     DataContext = new PlanningBoardViewModel(CurrentBoardSize) 
-        // };
-        // planningWindow.Show(); 
-        return;
+        var planningWindow = new PlanningBoard();
+        planningWindow.Show();
+
+        window.Close();
     }
 }
