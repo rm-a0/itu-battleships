@@ -6,6 +6,7 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using BattleshipsAvalonia.ViewModels;
 using BattleshipsAvalonia.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BattleshipsAvalonia;
 
@@ -25,7 +26,7 @@ public partial class App : Application
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = Program.ServiceProvider.GetRequiredService<MainWindowViewModel>(),
             };
         }
 

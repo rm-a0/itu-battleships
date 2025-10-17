@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using BattleshipsAvalonia.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BattleshipsAvalonia.Views;
 
@@ -9,6 +10,6 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        DataContext = new MainWindowViewModel();
+        DataContext = Program.ServiceProvider.GetRequiredService<MainWindowViewModel>();
     }
 }

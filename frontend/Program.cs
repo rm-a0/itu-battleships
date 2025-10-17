@@ -9,19 +9,19 @@ namespace BattleshipsAvalonia;
 
 class Program
 {
+    public static IServiceProvider ServiceProvider { get; private set; } = null!;
+
     public static void Main(string[] args)
     {
         var services = new ServiceCollection();
 
         services.AddSingleton<ApiService>();
-
         services.AddTransient<MainWindowViewModel>();
         services.AddTransient<PlanningBoardViewModel>();
-
         services.AddTransient<MainWindow>();
         services.AddTransient<PlanningBoard>();
 
-        var serviceProvider = services.BuildServiceProvider();
+        ServiceProvider = services.BuildServiceProvider();
 
         BuildAvaloniaApp()
             .WithInterFont()
