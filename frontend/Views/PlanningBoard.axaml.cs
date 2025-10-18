@@ -1,8 +1,9 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using BattleshipsAvalonia.ViewModels;
-using BattleshipsAvalonia.Services;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 
 namespace BattleshipsAvalonia.Views;
 

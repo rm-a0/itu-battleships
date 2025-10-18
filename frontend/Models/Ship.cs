@@ -6,7 +6,7 @@ namespace BattleshipsAvalonia.Models;
 public class Ship
 {
     [JsonPropertyName("id")]
-    public string Id { get; init; }
+    public int Id { get; init; }
 
     [JsonPropertyName("size")]
     public int Size { get; init; }

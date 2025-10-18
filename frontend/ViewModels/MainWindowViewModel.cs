@@ -45,9 +45,12 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void Play(Window window)
+    private async Task Play(Window window)
     {
-        //_ = _apiService.UpdateSettingsAsync(BoardSizeDisplay);
+        await _apiService.UpdateSettingsAsync(BoardSizeDisplay);
+        await _apiService.CreateGridsAsync(CurrentBoardSize);
+        await _apiService.SetAvailableShipsAsync();
+        await _apiService.SetCurrentScreenAsync("planning");
         var planningWindow = _serviceProvider.GetRequiredService<PlanningBoard>();
         planningWindow.Show();
         window.Close();

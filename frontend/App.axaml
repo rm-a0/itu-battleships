@@ -18,7 +18,7 @@
         <SolidColorBrush x:Key="Secondary" Color="#1A3C5C" />
         <SolidColorBrush x:Key="Ternary" Color="#172A3C" />
         <SolidColorBrush x:Key="SuccessGreen" Color="#34C759" />
-        <SolidColorBrush x:Key="SuccessRed" Color="#FF4C4C" />
+        <SolidColorBrush x:Key="ErrorRed" Color="#FF4C4C" />
         <SolidColorBrush x:Key="Background" Color="#121212" />
         <SolidColorBrush x:Key="BackgroundSecondary" Color="#171B21" />
         <SolidColorBrush x:Key="TextPrimary" Color="#E6ECEF" />
