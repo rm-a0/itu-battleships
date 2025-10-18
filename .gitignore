@@ -27,7 +27,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnp*
 package-lock.json
-# yarn.lock  # Uncomment if you don't want to commit lock file
+# yarn.lock
 
 # Environment Variables
 .env
@@ -43,7 +43,9 @@ package-lock.json
 
 # Testing
 /coverage/
-[TestT]*
+[TestT]*/
+test/
+!frontend/Converters/
 
 # macOS
 .DS_Store
@@ -54,5 +56,3 @@ package-lock.json
 # Miscellaneous
 *.bak
 *.tmp
-
-test/
