@@ -19,8 +19,56 @@
         <converters:TileToDisplayConverter x:Key="TileToDisplayConverter"/>
         <converters:SizeToWidthConverter x:Key="SizeToWidthConverter"/>
         <converters:TileToBrushConverter x:Key="TileToBrushConverter"/>
+        <converters:SizeToRangeConverter x:Key="SizeToRangeConverter"/>
+        <converters:IsShipSizeSelectedConverter x:Key="IsShipSizeSelectedConverter"/>
     </Window.Resources>
     <StackPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+            <ItemsControl ItemsSource="{Binding ShipGroups}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" 
+                                    Margin="10 100 10 0">
+                            <Button Command="{Binding #PlanningWindow.DataContext.SelectShipCommand}"
+                                    CommandParameter="{Binding Key}"
+                                    VerticalAlignment="Bottom">
+                                <ItemsControl ItemsSource="{Binding Key, Converter={StaticResource SizeToRangeConverter}}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Vertical"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="22" Height="22" Margin="4" CornerRadius="4">
+                                                <Border.Background>
+                                                    <MultiBinding Converter="{StaticResource IsShipSizeSelectedConverter}">
+                                                        <Binding Path="$parent[ItemsControl].DataContext.Key"/>
+                                                        <Binding Path="#PlanningWindow.DataContext.ActiveShip.Size"/>
+                                                    </MultiBinding>
+                                                </Border.Background>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Button>
+                            <TextBlock VerticalAlignment="Bottom" 
+                                    Margin="5 0 0 5" 
+                                    FontSize="24"
+                                    Text="{Binding Value.Count, StringFormat='x{0}'}"
+                                    Foreground="{StaticResource TextSecondary}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+
         <ItemsControl ItemsSource="{Binding GridIndices}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>

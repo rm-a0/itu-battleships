@@ -36,7 +36,7 @@ public class TileToBrushConverter : IMultiValueConverter
     {
         try
         {
-            return Application.Current?.FindResource(resourceName) as IBrush 
+            return Application.Current?.FindResource(resourceName) as IBrush
                 ?? new SolidColorBrush(Color.Parse(fallbackHex));
         }
         catch (Exception ex)

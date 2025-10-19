@@ -1,6 +1,6 @@
 {
   "player_grid": {
-    "gridSize": 10,
+    "gridSize": 7,
     "tiles": [
       [
         "empty",
@@ -9,27 +9,9 @@
         "empty",
         "empty",
         "empty",
-        "empty",
-        "empty",
-        "empty",
         "empty"
       ],
       [
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty"
-      ],
-      [
-        "empty",
-        "empty",
-        "empty",
         "empty",
         "empty",
         "empty",
@@ -45,27 +27,9 @@
         "empty",
         "empty",
         "empty",
-        "empty",
-        "empty",
-        "empty",
         "empty"
       ],
       [
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty"
-      ],
-      [
-        "empty",
-        "empty",
-        "empty",
         "empty",
         "empty",
         "empty",
@@ -81,9 +45,6 @@
         "empty",
         "empty",
         "empty",
-        "empty",
-        "empty",
-        "empty",
         "empty"
       ],
       [
@@ -93,27 +54,9 @@
         "empty",
         "empty",
         "empty",
-        "empty",
-        "empty",
-        "empty",
         "empty"
       ],
       [
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty"
-      ],
-      [
-        "empty",
-        "empty",
-        "empty",
         "empty",
         "empty",
         "empty",

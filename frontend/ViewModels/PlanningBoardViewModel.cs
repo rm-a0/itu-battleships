@@ -12,7 +12,7 @@ namespace BattleshipsAvalonia.ViewModels;
 
 public record CellPosition(int Row, int Col);
 
-public record ShipType(string Name, int Size, string Color, int Count);
+public record ShipGroupData(int Count, Ship Representative);
 
 public partial class PlanningBoardViewModel : ObservableObject
 {
@@ -23,10 +23,15 @@ public partial class PlanningBoardViewModel : ObservableObject
     private ObservableCollection<Ship> _availableShips = new();
 
     [ObservableProperty]
-    private ObservableCollection<ShipType> _availableShipTypes = new();
-
-    [ObservableProperty]
     private PlacedShip? _activeShip;
+
+    public IReadOnlyDictionary<int, ShipGroupData> ShipGroups => AvailableShips
+        .GroupBy(s => s.Size)
+        .OrderByDescending(g => g.Key)
+        .ToDictionary(
+            g => g.Key,
+            g => new ShipGroupData(g.Count(), g.First())
+        );
 
     [ObservableProperty]
     private Models.Grid _playerGrid = new();
@@ -44,7 +49,7 @@ public partial class PlanningBoardViewModel : ObservableObject
     {
         _serviceProvider = serviceProvider;
         _apiService = serviceProvider.GetRequiredService<ApiService>();
-        LoadPlanningDataAsync().ConfigureAwait(false);
+        Task.Run(LoadPlanningDataAsync).GetAwaiter().GetResult();
     }
 
     private async Task LoadPlanningDataAsync()
@@ -52,29 +57,31 @@ public partial class PlanningBoardViewModel : ObservableObject
         try
         {
             IsLoading = true;
+            ErrorMessage = string.Empty;
 
-            var availableShipsList = await _apiService.GetAvailableShipsAsync();
-            AvailableShips = new ObservableCollection<Ship>(availableShipsList);
+            await _apiService.SetAvailableShipsAsync();
+            PlayerGrid = await _apiService.GetPlayerGridAsync();
+            var ships = await _apiService.GetAvailableShipsAsync();
 
-            AvailableShipTypes = new ObservableCollection<ShipType>(
-                availableShipsList
-                    .GroupBy(s => s.Name)
-                    .Select(g => new ShipType(
-                        Name: g.Key,
-                        Size: g.First().Size,
-                        Color: g.First().Color,
-                        Count: g.Count()
-                    ))
-            );
+            AvailableShips.Clear();
+            foreach (var ship in ships)
+            {
+                AvailableShips.Add(ship);
+            }
 
             ActiveShip = await _apiService.GetActiveShipAsync();
-            PlayerGrid = await _apiService.GetPlayerGridAsync();
 
             GridIndices.Clear();
             for (int i = 0; i < PlayerGrid.GridSize * PlayerGrid.GridSize; i++)
             {
                 GridIndices.Add(i);
             }
+
+            AvailableShips.CollectionChanged += (_, _) =>
+            {
+                OnPropertyChanged(nameof(ShipGroups));
+            };
+            OnPropertyChanged(nameof(ShipGroups));
         }
         catch (Exception ex)
         {
@@ -86,144 +93,31 @@ public partial class PlanningBoardViewModel : ObservableObject
         }
     }
 
-    private bool CanPlaceShip(CellPosition pos, PlacedShip ship, Models.Grid grid)
+    [RelayCommand]
+    private void SelectShip(int size)
     {
-        int endRow = ship.Rotation == 0 ? pos.Row : pos.Row + ship.Size - 1;
-        int endCol = ship.Rotation == 0 ? pos.Col + ship.Size - 1 : pos.Col;
-        if (endRow >= grid.GridSize || endCol >= grid.GridSize)
+        if (ActiveShip != null) return;
+
+        if (!ShipGroups.TryGetValue(size, out var group) || group.Count == 0) return;
+
+        var shipToSelect = group.Representative;
+
+        ActiveShip = new PlacedShip
         {
-            System.Diagnostics.Debug.WriteLine($"Cannot place ship: Out of bounds (Row={pos.Row}, Col={pos.Col}, Size={ship.Size}, Rotation={ship.Rotation})");
-            return false;
-        }
-        for (int i = pos.Row; i <= endRow; i++)
-        for (int j = pos.Col; j <= endCol; j++)
-        {
-            if (i < 0 || j < 0 || grid.Tiles[i][j] != "empty")
-            {
-                System.Diagnostics.Debug.WriteLine($"Cannot place ship: Invalid cell (Row={i}, Col={j}, Tile={grid.Tiles[i][j]})");
-                return false;
-            }
-        }
-        return true;
+            Id = shipToSelect.Id,
+            Size = shipToSelect.Size,
+            Color = shipToSelect.Color,
+            Rotation = 0,
+            Name = shipToSelect.Name,
+            Row = -1,
+            Col = -1
+        };
     }
 
     [RelayCommand]
-    private void SelectShip(ShipType shipType)
+    private void PlaceShip()
     {
-        if (IsLoading) return;
-
-        try
-        {
-            IsLoading = true;
-
-            // Find the first available ship of this type
-            var ship = AvailableShips.FirstOrDefault(s => s.Name == shipType.Name);
-            if (ship == null)
-            {
-                ErrorMessage = $"No {shipType.Name} available.";
-                return;
-            }
-
-            ActiveShip = new PlacedShip
-            {
-                Id = ship.Id,
-                Size = ship.Size,
-                Color = ship.Color,
-                Rotation = ship.Rotation,
-                Name = ship.Name,
-                Row = -1,
-                Col = -1
-            };
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Error selecting ship: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    [RelayCommand]
-    private async Task PlaceShip(CellPosition position)
-    {
-        if (ActiveShip == null || IsLoading) return;
-        try
-        {
-            IsLoading = true;
-            if (!CanPlaceShip(position, ActiveShip, PlayerGrid))
-            {
-                ErrorMessage = "Cannot place ship at this position.";
-                return;
-            }
-            var placedShip = new PlacedShip
-            {
-                Id = ActiveShip.Id,
-                Size = ActiveShip.Size,
-                Color = ActiveShip.Color,
-                Rotation = ActiveShip.Rotation,
-                Name = ActiveShip.Name,
-                Row = position.Row,
-                Col = position.Col
-            };
-
-            await _apiService.AddPlacedShipAsync(placedShip);
-            await _apiService.RemoveActiveShipAsync();
-            await LoadPlanningDataAsync(); // Reloads AvailableShipTypes
-            AvailableShips.Remove(AvailableShips.First(s => s.Id == ActiveShip.Id));
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Error placing ship: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    [RelayCommand]
-    private async Task RotateShip()
-    {
-        if (ActiveShip == null || IsLoading) return;
-
-        try
-        {
-            IsLoading = true;
-            await _apiService.RotateActiveShipAsync();
-            await LoadPlanningDataAsync();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Error rotating ship: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    [RelayCommand]
-    private async Task ClearGrid()
-    {
-        if (IsLoading) return;
-
-        try
-        {
-            IsLoading = true;
-            await _apiService.ClearGridAsync();
-            await _apiService.RestoreAvailableShipsAsync();
-            await LoadPlanningDataAsync();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Error clearing grid: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        if (ActiveShip == null) return;
     }
 
     [RelayCommand]
