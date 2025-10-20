@@ -214,6 +214,10 @@ public class ApiService
             try { await PostAsync("api/planning/placed-ships", body, silent: true); }
             catch { await PostAsync("api/planning/set-active-placed", new { row, col }); }
         }
+    }
 
+    public async Task DeselectActiveShipAsync()
+    {
+        await PostAsync("api/planning/deselect-active");
     }
 }

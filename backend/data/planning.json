@@ -22,10 +22,10 @@
       ],
       [
         "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
+        "active-ship5",
+        "active-ship5",
+        "active-ship5",
+        "active-ship5",
         "empty",
         "empty"
       ],
@@ -34,8 +34,8 @@
         "empty",
         "empty",
         "empty",
-        "empty",
-        "empty",
+        "ship1",
+        "ship1",
         "empty"
       ],
       [
@@ -72,35 +72,35 @@
       "id": 1,
       "size": 2,
       "color": "purple",
-      "rotation": 0,
+      "rotation": 90,
       "name": "ship1"
     },
     {
       "id": 2,
       "size": 2,
       "color": "orange",
-      "rotation": 0,
+      "rotation": 90,
       "name": "ship2"
     },
     {
       "id": 3,
       "size": 3,
       "color": "green",
-      "rotation": 0,
+      "rotation": 90,
       "name": "ship3"
     },
     {
       "id": 4,
       "size": 3,
       "color": "blue",
-      "rotation": 0,
+      "rotation": 90,
       "name": "ship4"
     },
     {
       "id": 5,
       "size": 4,
       "color": "grey",
-      "rotation": 0,
+      "rotation": 90,
       "name": "ship5"
     }
   ],
@@ -109,32 +109,27 @@
       "id": 2,
       "size": 2,
       "color": "orange",
-      "rotation": 0,
+      "rotation": 90,
       "name": "ship2"
-    },
-    {
-      "id": 5,
-      "size": 4,
-      "color": "grey",
-      "rotation": 0,
-      "name": "ship5"
-    },
-    {
-      "id": 1,
-      "size": 2,
-      "color": "purple",
-      "rotation": 0,
-      "name": "ship1"
     },
     {
       "id": 4,
       "size": 3,
       "color": "blue",
-      "rotation": 0,
+      "rotation": 90,
       "name": "ship4"
     }
   ],
   "placed_ships": [
+    {
+      "id": 5,
+      "size": 4,
+      "color": "grey",
+      "rotation": 0,
+      "name": "ship5",
+      "row": 2,
+      "col": 1
+    },
     {
       "id": 3,
       "size": 3,
@@ -143,7 +138,24 @@
       "name": "ship3",
       "row": 1,
       "col": 2
+    },
+    {
+      "id": 1,
+      "size": 2,
+      "color": "purple",
+      "rotation": 0,
+      "name": "ship1",
+      "row": 3,
+      "col": 4
     }
   ],
-  "active_ship": null
+  "active_ship": {
+    "id": 5,
+    "size": 4,
+    "color": "grey",
+    "rotation": 0,
+    "name": "ship5",
+    "row": 2,
+    "col": 1
+  }
 }

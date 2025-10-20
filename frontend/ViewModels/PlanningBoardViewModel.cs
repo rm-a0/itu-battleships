@@ -117,6 +117,9 @@ public partial class PlanningBoardViewModel : ObservableObject
         var shipToSelect = AvailableShips.FirstOrDefault(s => s.Size == size);
         if (shipToSelect == null) return;
 
+        await _apiService.DeselectActiveShipAsync();
+        await LoadPlanningDataAsync();
+
         if (ActiveShip != null) 
             ActiveShip = null;
 
@@ -125,7 +128,7 @@ public partial class PlanningBoardViewModel : ObservableObject
             Id = shipToSelect.Id,
             Size = shipToSelect.Size,
             Color = shipToSelect.Color,
-            Rotation = 0,
+            Rotation = 90,
             Name = shipToSelect.Name,
             Row = -1,
             Col = -1
@@ -167,15 +170,8 @@ public partial class PlanningBoardViewModel : ObservableObject
     [RelayCommand]
     private async Task RotateActiveShip()
     {
-        try
-        {
-            await _apiService.RotateActiveShipAsync();
-            await LoadPlanningDataAsync();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Action failed: {ex.Message}";
-        }
+        await _apiService.RotateActiveShipAsync();
+        await LoadPlanningDataAsync();
     }
 
     [RelayCommand]

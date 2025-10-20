@@ -784,6 +784,56 @@ app.post('/api/planning/set-active-placed', (req: Request, res: Response) => {
   });
 });
 
+// Endpoint to deselect the active ship (remove 'active-' prefix from grid tiles, set active_ship to null)
+app.post('/api/planning/deselect-active', (req: Request, res: Response) => {
+  fs.readFile(planningPath, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
+    if (err) {
+      console.error("Error reading planning data:", err);
+      return res.status(500).json({ error: "Could not read planning data" });
+    }
+
+    let planningData: IPlanningData;
+    try {
+      planningData = JSON.parse(data);
+    } catch (parseError) {
+      console.error("Error parsing planning data:", parseError);
+      return res.status(500).json({ error: "Invalid planning data format" });
+    }
+
+    if (!planningData.active_ship) {
+      return res.status(200).json({ message: "No active ship to deselect" });
+    }
+
+    const as = planningData.active_ship;
+    const name = as.name;
+    const prefix = "active-";
+    const tileValue = prefix + name;
+
+    if (as.rotation === 0) {
+      for (let j = as.col; j < as.col + as.size; j++) {
+        if (planningData.player_grid.tiles[as.row][j] === tileValue) {
+          planningData.player_grid.tiles[as.row][j] = name;
+        }
+      }
+    } else {
+      for (let i = as.row; i < as.row + as.size; i++) {
+        if (planningData.player_grid.tiles[i][as.col] === tileValue) {
+          planningData.player_grid.tiles[i][as.col] = name;
+        }
+      }
+    }
+    planningData.active_ship = null;
+
+    fs.writeFile(planningPath, JSON.stringify(planningData, null, 2), (writeErr) => {
+      if (writeErr) {
+        console.error("Error deselecting active ship:", writeErr);
+        return res.status(500).json({ error: "Could not deselect active ship" });
+      }
+      res.status(200).json({ message: "Active ship deselected successfully" });
+    });
+  });
+});
+
 // ------ PLANNING END
 
 // Endpoint for '/'
