@@ -90,7 +90,9 @@
                             Width="36" Height="36"
                             FontSize="12"
                             HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center">
+                            VerticalContentAlignment="Center"
+                            Command="{Binding #PlanningWindow.DataContext.PlaceShipCommand}"
+                            CommandParameter="{Binding .}">
                         <Button.Content>
                             <Binding Path="."
                                      Converter="{StaticResource TileToDisplayConverter}"

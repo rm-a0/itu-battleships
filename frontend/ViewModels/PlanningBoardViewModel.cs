@@ -23,14 +23,20 @@ public partial class PlanningBoardViewModel : ObservableObject
     private ObservableCollection<Ship> _availableShips = new();
 
     [ObservableProperty]
+    private ObservableCollection<Ship> _allShips = new();
+
+    [ObservableProperty]
     private PlacedShip? _activeShip;
 
-    public IReadOnlyDictionary<int, ShipGroupData> ShipGroups => AvailableShips
+    public IReadOnlyDictionary<int, ShipGroupData> ShipGroups => AllShips 
         .GroupBy(s => s.Size)
         .OrderByDescending(g => g.Key)
         .ToDictionary(
             g => g.Key,
-            g => new ShipGroupData(g.Count(), g.First())
+            g => new ShipGroupData(
+                AvailableShips.Count(s => s.Size == g.Key),
+                g.First()
+            )
         );
 
     [ObservableProperty]
@@ -59,17 +65,29 @@ public partial class PlanningBoardViewModel : ObservableObject
             IsLoading = true;
             ErrorMessage = string.Empty;
 
-            await _apiService.SetAvailableShipsAsync();
-            PlayerGrid = await _apiService.GetPlayerGridAsync();
-            var ships = await _apiService.GetAvailableShipsAsync();
+            var planningData = await _apiService.GetPlanningDataAsync();
 
-            AvailableShips.Clear();
-            foreach (var ship in ships)
+            PlayerGrid = planningData.PlayerGrid;
+
+            AllShips.Clear();
+            if (planningData.AllShips != null)
             {
-                AvailableShips.Add(ship);
+                foreach (var ship in planningData.AllShips)
+                {
+                    AllShips.Add(ship);
+                }
             }
 
-            ActiveShip = await _apiService.GetActiveShipAsync();
+            AvailableShips.Clear();
+            if (planningData.AvailableShips != null)
+            {
+                foreach (var ship in planningData.AvailableShips)
+                {
+                    AvailableShips.Add(ship);
+                }
+            }
+
+            ActiveShip = planningData.ActiveShip;
 
             GridIndices.Clear();
             for (int i = 0; i < PlayerGrid.GridSize * PlayerGrid.GridSize; i++)
@@ -77,10 +95,8 @@ public partial class PlanningBoardViewModel : ObservableObject
                 GridIndices.Add(i);
             }
 
-            AvailableShips.CollectionChanged += (_, _) =>
-            {
-                OnPropertyChanged(nameof(ShipGroups));
-            };
+            AllShips.CollectionChanged += (_, _) => OnPropertyChanged(nameof(ShipGroups));
+            AvailableShips.CollectionChanged += (_, _) => OnPropertyChanged(nameof(ShipGroups));
             OnPropertyChanged(nameof(ShipGroups));
         }
         catch (Exception ex)
@@ -96,11 +112,10 @@ public partial class PlanningBoardViewModel : ObservableObject
     [RelayCommand]
     private void SelectShip(int size)
     {
-        if (ActiveShip != null) return;
-
         if (!ShipGroups.TryGetValue(size, out var group) || group.Count == 0) return;
 
-        var shipToSelect = group.Representative;
+        var shipToSelect = AvailableShips.FirstOrDefault(s => s.Size == size);
+        if (shipToSelect == null) return; 
 
         ActiveShip = new PlacedShip
         {
@@ -115,9 +130,26 @@ public partial class PlanningBoardViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void PlaceShip()
+    private async Task PlaceShip(int index)
     {
         if (ActiveShip == null) return;
+
+        int gridSize = PlayerGrid.GridSize;
+        int row = index / gridSize;
+        int col = index % gridSize;
+
+        ActiveShip.Row = row;
+        ActiveShip.Col = col;
+        try
+        {
+            await _apiService.AddPlacedShipAsync(ActiveShip);
+            await LoadPlanningDataAsync();
+            ActiveShip = await _apiService.GetActiveShipAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Placement failed: {ex.Message}";
+        }
     }
 
     [RelayCommand]

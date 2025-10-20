@@ -6,8 +6,8 @@ namespace BattleshipsAvalonia.Models;
 public class PlacedShip : Ship
 {
     [JsonPropertyName("row")]
-    public int Row { get; init; }
+    public int Row { get; set; }
 
     [JsonPropertyName("col")]
-    public int Col { get; init; }
+    public int Col { get; set; }
 }

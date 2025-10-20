@@ -288,7 +288,7 @@ app.post('/api/planning/placed-ships', (req: Request, res: Response) => {
       planningData.placed_ships = [];
     }
     
-    // create new placed ship object
+    // Create new placed ship object
     const newPlacingShip: IPlacedShip = {
       id: ship.id,
       size: ship.size,
@@ -297,21 +297,70 @@ app.post('/api/planning/placed-ships', (req: Request, res: Response) => {
       name: ship.name,
       row: row,
       col: col
+    };
+
+    // Check if ship is available before placement
+    if (!planningData.available_ships?.some((availShip: IShip) => availShip.id === ship.id)) {
+      return res.status(400).json({ error: "Ship not available" });
+    }
+
+    // Basic validation: Check if placement is within bounds and no overlap
+    const gridSize = planningData.player_grid.gridSize;
+    let canPlace = true;
+    if (newPlacingShip.rotation === 0) { // Horizontal
+      if (col + newPlacingShip.size > gridSize) {
+        canPlace = false;
+      } else {
+        for (let j = col; j < col + newPlacingShip.size; j++) {
+          if (planningData.player_grid.tiles[row][j] !== "empty") {
+            canPlace = false;
+            break;
+          }
+        }
+      }
+    } else { // Vertical
+      if (row + newPlacingShip.size > gridSize) {
+        canPlace = false;
+      } else {
+        for (let i = row; i < row + newPlacingShip.size; i++) {
+          if (planningData.player_grid.tiles[i][col] !== "empty") {
+            canPlace = false;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!canPlace) {
+      return res.status(400).json({ error: "Invalid placement: out of bounds or overlap" });
+    }
+
+    // Place the ship on the grid
+    if (newPlacingShip.rotation === 0) {
+      for (let j = col; j < col + newPlacingShip.size; j++) {
+        planningData.player_grid.tiles[row][j] = newPlacingShip.name;
+      }
+    } else {
+      for (let i = row; i < row + newPlacingShip.size; i++) {
+        planningData.player_grid.tiles[i][col] = newPlacingShip.name;
+      }
     }
 
     planningData.placed_ships.push(newPlacingShip);
 
-    // get and remove ship from available ships
     if (planningData.available_ships) {
       planningData.available_ships = planningData.available_ships.filter((s) => s.id !== ship.id);
     }
 
+    // Set active_ship to the new one
+    planningData.active_ship = null;
+
     fs.writeFile(planningPath, JSON.stringify(planningData, null, 2), (writeErr) => {
       if (writeErr) {
-        console.error("Error saving placed ship:", writeErr);
-        return res.status(500).json({ error: "Could not save placed ship" });
+        console.error("Error saving planning data:", writeErr);
+        return res.status(500).json({ error: "Could not save planning data" });
       }
-      res.status(200).json({ message: "Placed ship added successfully", ship });
+      res.status(200).json({ message: "Ship placed successfully", planningData });
     });
   });
 });
