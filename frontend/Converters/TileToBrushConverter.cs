@@ -25,7 +25,12 @@ public class TileToBrushConverter : IMultiValueConverter
                 {
                     return GetBrush("Secondary", "#1A3C5C");
                 }
-                return GetBrush("Primary", "#4DA8FF");
+                else if(tile.Contains("active"))
+                {
+
+                    return GetBrush("Primary", "#4DA8FF");
+                }
+                return GetBrush("TextPrimary", "#E6ECEF");
             }
             return GetBrush("SuccessRed", "#FF4C4C");
         }

@@ -3,15 +3,6 @@
     "gridSize": 7,
     "tiles": [
       [
-        "ship4",
-        "ship4",
-        "ship4",
-        "empty",
-        "empty",
-        "empty",
-        "empty"
-      ],
-      [
         "empty",
         "empty",
         "empty",
@@ -26,6 +17,15 @@
         "ship3",
         "ship3",
         "ship3",
+        "empty",
+        "empty"
+      ],
+      [
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
         "empty",
         "empty"
       ],
@@ -106,13 +106,6 @@
   ],
   "available_ships": [
     {
-      "id": 1,
-      "size": 2,
-      "color": "purple",
-      "rotation": 0,
-      "name": "ship1"
-    },
-    {
       "id": 2,
       "size": 2,
       "color": "orange",
@@ -125,6 +118,20 @@
       "color": "grey",
       "rotation": 0,
       "name": "ship5"
+    },
+    {
+      "id": 1,
+      "size": 2,
+      "color": "purple",
+      "rotation": 0,
+      "name": "ship1"
+    },
+    {
+      "id": 4,
+      "size": 3,
+      "color": "blue",
+      "rotation": 0,
+      "name": "ship4"
     }
   ],
   "placed_ships": [
@@ -134,17 +141,8 @@
       "color": "green",
       "rotation": 0,
       "name": "ship3",
-      "row": 2,
+      "row": 1,
       "col": 2
-    },
-    {
-      "id": 4,
-      "size": 3,
-      "color": "blue",
-      "rotation": 0,
-      "name": "ship4",
-      "row": 0,
-      "col": 0
     }
   ],
   "active_ship": null

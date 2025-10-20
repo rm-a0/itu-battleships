@@ -35,7 +35,7 @@ public class ApiService
         }
     }
 
-    private async Task PostAsync(string endpoint, object? body = null)
+    private async Task PostAsync(string endpoint, object? body = null, bool silent = false)
     {
         try
         {
@@ -47,7 +47,7 @@ public class ApiService
         }
         catch (HttpRequestException ex)
         {
-            Console.WriteLine($"HTTP error in POST {endpoint}: {ex.Message}");
+            if(!silent) Console.WriteLine($"HTTP error in POST {endpoint}: {ex.Message}");
             throw;
         }
     }
@@ -188,5 +188,32 @@ public class ApiService
     public bool CheckForWin(string[][] grid)
     {
         return grid.All(row => row.All(cell => !cell.StartsWith("ship")));
+    }
+
+    public async Task SetActiveOrPlaceShipAsync(int row, int col, PlacedShip? activeShip = null)
+    {
+        if (activeShip == null)
+        {
+            await PostAsync("api/planning/set-active-placed", new { row, col });
+        }
+        else
+        {
+            var body = new
+            {
+                ship = new Ship
+                {
+                    Id = activeShip.Id,
+                    Size = activeShip.Size,
+                    Color = activeShip.Color,
+                    Rotation = activeShip.Rotation,
+                    Name = activeShip.Name
+                },
+                row,
+                col
+            };
+            try { await PostAsync("api/planning/placed-ships", body, silent: true); }
+            catch { await PostAsync("api/planning/set-active-placed", new { row, col }); }
+        }
+
     }
 }

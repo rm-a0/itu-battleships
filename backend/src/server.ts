@@ -233,7 +233,6 @@ app.post('/api/set-available-ships', (req: Request, res: Response) => {
 
 // ------ PLANNING START
 
-
 // Endpoint to get planning data
 app.get('/api/planning', (req: Request, res: Response) => {
   fs.readFile(planningPath, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
@@ -266,7 +265,7 @@ app.get('/api/planning/available-ships', (req: Request, res: Response) => {
   });
 });
 
-// Endpoint to add placed ship
+// Endpoint to add or update placed ship (supports replacement/moving)
 app.post('/api/planning/placed-ships', (req: Request, res: Response) => {
   const { ship, row, col } = req.body;
 
@@ -287,43 +286,84 @@ app.post('/api/planning/placed-ships', (req: Request, res: Response) => {
     if (!planningData.placed_ships) {
       planningData.placed_ships = [];
     }
-    
-    // Create new placed ship object
-    const newPlacingShip: IPlacedShip = {
-      id: ship.id,
-      size: ship.size,
-      color: ship.color,
-      rotation: ship.rotation,
-      name: ship.name,
-      row: row,
-      col: col
-    };
 
-    // Check if ship is available before placement
-    if (!planningData.available_ships?.some((availShip: IShip) => availShip.id === ship.id)) {
-      return res.status(400).json({ error: "Ship not available" });
+    const name = ship.name;
+    let isNew = true;
+    let oldRow = -1;
+    let oldCol = -1;
+    let oldRotation = 0;
+    let oldSize = 0;
+
+    // Check if ship is already placed (for moving/replacement)
+    for (let i = 0; i < planningData.placed_ships.length; i++) {
+      if (planningData.placed_ships[i].id === ship.id) {
+        const oldShip = planningData.placed_ships[i];
+        isNew = false;
+        oldRow = oldShip.row;
+        oldCol = oldShip.col;
+        oldRotation = oldShip.rotation;
+        oldSize = oldShip.size;
+
+        // Clear old tiles (handle active- prefix if present)
+        const tileValue = planningData.active_ship && planningData.active_ship.id === ship.id ? "active-" + name : name;
+        if (oldRotation === 0) {
+          for (let j = oldCol; j < oldCol + oldSize; j++) {
+            if (planningData.player_grid.tiles[oldRow][j] === tileValue) {
+              planningData.player_grid.tiles[oldRow][j] = "empty";
+            }
+          }
+        } else {
+          for (let k = oldRow; k < oldRow + oldSize; k++) {
+            if (planningData.player_grid.tiles[k][oldCol] === tileValue) {
+              planningData.player_grid.tiles[k][oldCol] = "empty";
+            }
+          }
+        }
+
+        // Update position and rotation
+        planningData.placed_ships[i].row = row;
+        planningData.placed_ships[i].col = col;
+        planningData.placed_ships[i].rotation = ship.rotation;
+        break;
+      }
     }
 
-    // Basic validation: Check if placement is within bounds and no overlap
-    const gridSize = planningData.player_grid.gridSize;
+    if (isNew) {
+      // Create new placed ship
+      const newPlacingShip: IPlacedShip = {
+        id: ship.id,
+        size: ship.size,
+        color: ship.color,
+        rotation: ship.rotation,
+        name: ship.name,
+        row: row,
+        col: col
+      };
+      planningData.placed_ships.push(newPlacingShip);
+
+      // Remove from available ships
+      planningData.available_ships = planningData.available_ships?.filter(s => s.id !== ship.id) || [];
+    }
+
+    // Check if can place at new position (no overlap)
     let canPlace = true;
-    if (newPlacingShip.rotation === 0) { // Horizontal
-      if (col + newPlacingShip.size > gridSize) {
+    if (ship.rotation === 0) {
+      if (col + ship.size > planningData.player_grid.gridSize) {
         canPlace = false;
       } else {
-        for (let j = col; j < col + newPlacingShip.size; j++) {
+        for (let j = col; j < col + ship.size; j++) {
           if (planningData.player_grid.tiles[row][j] !== "empty") {
             canPlace = false;
             break;
           }
         }
       }
-    } else { // Vertical
-      if (row + newPlacingShip.size > gridSize) {
+    } else {
+      if (row + ship.size > planningData.player_grid.gridSize) {
         canPlace = false;
       } else {
-        for (let i = row; i < row + newPlacingShip.size; i++) {
-          if (planningData.player_grid.tiles[i][col] !== "empty") {
+        for (let k = row; k < row + ship.size; k++) {
+          if (planningData.player_grid.tiles[k][col] !== "empty") {
             canPlace = false;
             break;
           }
@@ -332,27 +372,33 @@ app.post('/api/planning/placed-ships', (req: Request, res: Response) => {
     }
 
     if (!canPlace) {
-      return res.status(400).json({ error: "Invalid placement: out of bounds or overlap" });
+      // Restore old tiles if moving
+      if (!isNew) {
+        if (oldRotation === 0) {
+          for (let j = oldCol; j < oldCol + oldSize; j++) {
+            planningData.player_grid.tiles[oldRow][j] = name;
+          }
+        } else {
+          for (let k = oldRow; k < oldRow + oldSize; k++) {
+            planningData.player_grid.tiles[k][oldCol] = name;
+          }
+        }
+      }
+      return res.status(400).json({ error: "Cannot place ship: out of bounds or overlapping" });
     }
 
-    // Place the ship on the grid
-    if (newPlacingShip.rotation === 0) {
-      for (let j = col; j < col + newPlacingShip.size; j++) {
-        planningData.player_grid.tiles[row][j] = newPlacingShip.name;
+    // Set new tiles (without active- prefix)
+    if (ship.rotation === 0) {
+      for (let j = col; j < col + ship.size; j++) {
+        planningData.player_grid.tiles[row][j] = name;
       }
     } else {
-      for (let i = row; i < row + newPlacingShip.size; i++) {
-        planningData.player_grid.tiles[i][col] = newPlacingShip.name;
+      for (let k = row; k < row + ship.size; k++) {
+        planningData.player_grid.tiles[k][col] = name;
       }
     }
 
-    planningData.placed_ships.push(newPlacingShip);
-
-    if (planningData.available_ships) {
-      planningData.available_ships = planningData.available_ships.filter((s) => s.id !== ship.id);
-    }
-
-    // Set active_ship to the new one
+    // Deselect active ship
     planningData.active_ship = null;
 
     fs.writeFile(planningPath, JSON.stringify(planningData, null, 2), (writeErr) => {
@@ -360,15 +406,13 @@ app.post('/api/planning/placed-ships', (req: Request, res: Response) => {
         console.error("Error saving planning data:", writeErr);
         return res.status(500).json({ error: "Could not save planning data" });
       }
-      res.status(200).json({ message: "Ship placed successfully", planningData });
+      res.status(200).json({ message: "Ship placed/updated successfully" });
     });
   });
 });
 
-// Endpoint to set active ship
-app.post('/api/planning/handle-active-ship', (req: Request, res: Response) => {
-  const { row, col } = req.body;
-
+// Endpoint to clear grid
+app.post('/api/planning/clear-grid', (req: Request, res: Response) => {
   fs.readFile(planningPath, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
     if (err) {
       console.error("Error reading planning data:", err);
@@ -383,68 +427,23 @@ app.post('/api/planning/handle-active-ship', (req: Request, res: Response) => {
       return res.status(500).json({ error: "Invalid planning data format" });
     }
 
-    if (planningData.player_grid.tiles[row][col] !== "empty") {
-      const shipName = planningData.player_grid.tiles[row][col];
-      const activeShip = planningData.active_ship;
+    // Clear tiles
+    planningData.player_grid.tiles = planningData.player_grid.tiles.map(row => row.map(() => "empty"));
 
-      if (shipName === activeShip?.name) {
-        // Unset active ship if clicked on the same ship
-        planningData.active_ship = null;
-      } else {
-        planningData.active_ship = planningData.placed_ships?.find(ship => ship.name === shipName) || null;
-        console.log(`active ship: ${planningData.active_ship?.name}`);
-      }
-      
-      // Update info about active ship
-      fs.writeFile(planningPath, JSON.stringify(planningData, null, 2), (writeErr) => {
-        if (writeErr) {
-          console.error("Error saving active ship:", writeErr);
-          return res.status(500).json({ error: "Could not save active ship" });
-        }
-        res.status(200).json({ message: "Active ship set successfully", active_ship: activeShip });
-      });
-    }
-  });
-});
-
-// Endpoint to remove ships from Grid
-app.post('/api/clear-grid', (req: Request, res: Response) => {
-  fs.readFile(planningPath, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
-    if (err) {
-      console.error("Error reading planning data:", err);
-      return res.status(500).json({ error: "Could not read planning data" });
-    }
-
-    let planningData: IPlanningData;
-    try {
-      planningData = JSON.parse(data);
-    } catch (parseError) {
-      console.error("Error parsing planning data:", parseError);
-      return res.status(500).json({ error: "Invalid planning data format" });
-    }
-
-    // Clear the grid
-    for (let i = 0; i < planningData.player_grid.tiles.length; i++) {
-      for (let j = 0; j < planningData.player_grid.tiles[i].length; j++) {
-        planningData.player_grid.tiles[i][j] = "empty";
-      }
-    }
-
-    // return ships from grid to available ships
-    if (planningData.placed_ships) {
-      planningData.available_ships = planningData.available_ships || [];
+    // Restore available ships from placed
+    if (planningData.available_ships && planningData.placed_ships) {
       planningData.placed_ships.forEach((ship: IPlacedShip) => {
         const availableShip: IShip = {
           id: ship.id,
           size: ship.size,
           color: ship.color,
-          rotation: 0, // was ship.rotation
+          rotation: 0, // Reset rotation
           name: ship.name
         };
         planningData.available_ships?.push(availableShip);
       });
     }
-    
+
     planningData.active_ship = null; // Reset active ship
     planningData.placed_ships = null; // Clear placed ships
 
@@ -456,7 +455,7 @@ app.post('/api/clear-grid', (req: Request, res: Response) => {
       res.status(200).json({ message: "Grid cleared successfully" });
     });
   });
-})
+});
 
 // Endpoint that returns active ship
 app.get('/api/planning/active-ship', (req: Request, res: Response) => {
@@ -476,7 +475,7 @@ app.get('/api/planning/active-ship', (req: Request, res: Response) => {
   });
 });
 
-// ENdpoint to remove active ship
+// Endpoint to remove active ship
 app.post('/api/planning/remove-active-ship', (req: Request, res: Response) => {
   fs.readFile(planningPath, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
     if (err) {
@@ -493,33 +492,35 @@ app.post('/api/planning/remove-active-ship', (req: Request, res: Response) => {
     }
 
     if (planningData.active_ship === null) {
-      return false;
+      return res.status(400).json({ error: "No active ship to remove" });
     }
 
-    // Remove active ship grid
-    if (planningData.active_ship !== null) {
-      if (planningData.active_ship.rotation === 0) {
-        for (let j = planningData.active_ship.col; j < planningData.active_ship.col + planningData.active_ship.size; j++) {
-          planningData.player_grid.tiles[planningData.active_ship.row][j] = "empty";
-        }
-      } else {
-        // If vertical rotation
-        for (let i = planningData.active_ship?.row; i < planningData.active_ship.row + planningData.active_ship.size; i++) {
-          planningData.player_grid.tiles[i][planningData.active_ship.col] = "empty";
-        }
+    const as = planningData.active_ship;
+    const name = as.name;
+    const prefix = "active-";
+    const tileValue = prefix + name;
+
+    // Clear active ship tiles (remove active- prefix in the process)
+    if (as.rotation === 0) {
+      for (let j = as.col; j < as.col + as.size; j++) {
+        planningData.player_grid.tiles[as.row][j] = "empty";
+      }
+    } else {
+      for (let i = as.row; i < as.row + as.size; i++) {
+        planningData.player_grid.tiles[i][as.col] = "empty";
       }
     }
 
     const newAvailableShip: IShip = {
-      id: planningData.active_ship?.id || "",
-      size: planningData.active_ship?.size || 0,
-      color: planningData.active_ship?.color || "",
+      id: as.id,
+      size: as.size,
+      color: as.color,
       rotation: 0,
-      name: planningData.active_ship?.name || ""
-    }
-    planningData.available_ships?.push(newAvailableShip); // Add active ship to available ships
+      name: as.name
+    };
+    planningData.available_ships?.push(newAvailableShip); // Add to available ships
 
-    planningData.placed_ships = planningData.placed_ships?.filter((ship: IPlacedShip) => ship.id !== planningData.active_ship?.id) || null; // Remove active ship from placed ships
+    planningData.placed_ships = planningData.placed_ships?.filter((ship: IPlacedShip) => ship.id !== as.id) || []; // Remove from placed ships
     planningData.active_ship = null; // Clear active ship
 
     fs.writeFile(planningPath, JSON.stringify(planningData, null, 2), (writeErr) => {
@@ -549,71 +550,77 @@ app.post('/api/planning/rotate-active-ship', (req: Request, res: Response) => {
     }
 
     if (!planningData.active_ship) {
-      return;
+      return res.status(400).json({ error: "No active ship to rotate" });
     }
 
-    const direction = planningData.active_ship.rotation === 0 ? 90 : 0;
+    const as = planningData.active_ship;
+    const name = as.name;
+    const prefix = "active-";
+    const oldTileValue = prefix + name;
+
+    const newRotation = as.rotation === 0 ? 90 : 0;
     let canBePlaced = true;
 
-    // check if ship can be placed
-    if (direction === 0) {
-      if (planningData.active_ship.col + planningData.active_ship.size > planningData.player_grid.gridSize) {
-        return;
-      }
-
-      for (let i = planningData.active_ship.col + 1; i < planningData.active_ship.col + planningData.active_ship.size; i++) {
-        if (planningData.player_grid.tiles[planningData.active_ship.row][i] !== "empty") {
-          canBePlaced = false;
-          break;
+    // Check if can place in new rotation
+    if (newRotation === 0) {
+      if (as.col + as.size > planningData.player_grid.gridSize) {
+        canBePlaced = false;
+      } else {
+        for (let j = as.col; j < as.col + as.size; j++) {
+          if (planningData.player_grid.tiles[as.row][j] !== "empty" && planningData.player_grid.tiles[as.row][j] !== oldTileValue) {
+            canBePlaced = false;
+            break;
+          }
         }
       }
     } else {
-      if (planningData.active_ship.row + planningData.active_ship.size > planningData.player_grid.gridSize) {
-        return;
-      }
-
-      for (let j = planningData.active_ship.row + 1; j < planningData.active_ship.row + planningData.active_ship.size; j++) {
-        if (planningData.player_grid.tiles[j][planningData.active_ship.col] !== "empty") {
-          canBePlaced = false;
-          break;
+      if (as.row + as.size > planningData.player_grid.gridSize) {
+        canBePlaced = false;
+      } else {
+        for (let i = as.row; i < as.row + as.size; i++) {
+          if (planningData.player_grid.tiles[i][as.col] !== "empty" && planningData.player_grid.tiles[i][as.col] !== oldTileValue) {
+            canBePlaced = false;
+            break;
+          }
         }
       }
     }
 
     if (!canBePlaced) {
-      return;
+      return res.status(400).json({ error: "Cannot rotate ship: out of bounds or overlapping" });
     }
 
-    // Remove old ship from grid
-    if (planningData.active_ship.rotation === 0) {
-      for (let j = planningData.active_ship.col; j < planningData.active_ship.col + planningData.active_ship.size; j++) {
-        planningData.player_grid.tiles[planningData.active_ship.row][j] = "empty";
+    // Clear old tiles
+    if (as.rotation === 0) {
+      for (let j = as.col; j < as.col + as.size; j++) {
+        planningData.player_grid.tiles[as.row][j] = "empty";
       }
     } else {
-      for (let i = planningData.active_ship.row; i < planningData.active_ship.row + planningData.active_ship.size; i++) {
-        planningData.player_grid.tiles[i][planningData.active_ship.col] = "empty";
+      for (let i = as.row; i < as.row + as.size; i++) {
+        planningData.player_grid.tiles[i][as.col] = "empty";
       }
     }
 
-    // Put new (rotated) ship
-    if (direction === 0) {
-      for (let i = planningData.active_ship.col; i < planningData.active_ship.col + planningData.active_ship.size; i++) {
-        planningData.player_grid.tiles[planningData.active_ship.row][i] = planningData.active_ship.name;
+    // Set new tiles with active- prefix
+    const newTileValue = prefix + name;
+    if (newRotation === 0) {
+      for (let j = as.col; j < as.col + as.size; j++) {
+        planningData.player_grid.tiles[as.row][j] = newTileValue;
       }
     } else {
-      for (let j = planningData.active_ship.row; j < planningData.active_ship.row + planningData.active_ship.size; j++) {
-        planningData.player_grid.tiles[j][planningData.active_ship.col] = planningData.active_ship.name;
+      for (let i = as.row; i < as.row + as.size; i++) {
+        planningData.player_grid.tiles[i][as.col] = newTileValue;
       }
     }
 
-    // set rotation in active ship
-    planningData.active_ship.rotation = direction;
-    
-    // change direction in placed_ships
-    if (planningData.placed_ships !== null) {
-      for (let i = 0; i < planningData.placed_ships?.length; i++) {
-        if (planningData.placed_ships[i].name === planningData.active_ship.name) {
-          planningData.placed_ships[i].rotation = direction;
+    // Update rotation
+    as.rotation = newRotation;
+
+    // Update rotation in placed_ships
+    if (planningData.placed_ships) {
+      for (let i = 0; i < planningData.placed_ships.length; i++) {
+        if (planningData.placed_ships[i].id === as.id) {
+          planningData.placed_ships[i].rotation = newRotation;
           break;
         }
       }
@@ -625,11 +632,11 @@ app.post('/api/planning/rotate-active-ship', (req: Request, res: Response) => {
         return res.status(500).json({ error: "Could not rotate active ship" });
       }
       res.status(200).json({ message: "Active ship rotated successfully", active_ship: planningData.active_ship });
-    })
+    });
   });
 });
 
-// Endpoint to get colors from available ships
+// Endpoint to get colors from all ships
 app.get('/api/planning/colors', (req: Request, res: Response) => {
   fs.readFile(planningPath, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
     if (err) {
@@ -683,11 +690,97 @@ app.post('/api/planning/restore-available-ships', (req: Request, res: Response) 
 
     fs.writeFile(planningPath, JSON.stringify(planningData, null, 2), (writeErr) => {
       if (writeErr) {
-        console.error("Error rotating active ship:", writeErr);
-        return res.status(500).json({ error: "Could not rotate active ship" });
+        console.error("Error restoring available ships:", writeErr);
+        return res.status(500).json({ error: "Could not restore available ships" });
       }
       res.status(200).json({ message: "Available ships restored successfully" });
     })
+  });
+});
+
+// New endpoint to select a placed ship as active (for selection and visualization)
+app.post('/api/planning/set-active-placed', (req: Request, res: Response) => {
+  const { row, col } = req.body;
+
+  fs.readFile(planningPath, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
+    if (err) {
+      console.error("Error reading planning data:", err);
+      return res.status(500).json({ error: "Could not read planning data" });
+    }
+
+    let planningData: IPlanningData;
+    try {
+      planningData = JSON.parse(data);
+    } catch (parseError) {
+      console.error("Error parsing planning data:", parseError);
+      return res.status(500).json({ error: "Invalid planning data format" });
+    }
+
+    // Deselect current active ship if any (remove active- prefix)
+    if (planningData.active_ship) {
+      const as = planningData.active_ship;
+      const name = as.name;
+      const prefix = "active-";
+      const tileValue = prefix + name;
+
+      if (as.rotation === 0) {
+        for (let j = as.col; j < as.col + as.size; j++) {
+          if (planningData.player_grid.tiles[as.row][j] === tileValue) {
+            planningData.player_grid.tiles[as.row][j] = name;
+          }
+        }
+      } else {
+        for (let i = as.row; i < as.row + as.size; i++) {
+          if (planningData.player_grid.tiles[i][as.col] === tileValue) {
+            planningData.player_grid.tiles[i][as.col] = name;
+          }
+        }
+      }
+      planningData.active_ship = null;
+    }
+
+    // Find the placed ship containing the clicked cell
+    let selectedShip: IPlacedShip | null = null;
+    for (const ship of planningData.placed_ships || []) {
+      const isHorizontal = ship.rotation === 0;
+      const startRow = ship.row;
+      const startCol = ship.col;
+      const endRow = isHorizontal ? startRow : startRow + ship.size - 1;
+      const endCol = isHorizontal ? startCol + ship.size - 1 : startCol;
+
+      if (row >= startRow && row <= endRow && col >= startCol && col <= endCol) {
+        selectedShip = ship;
+        break;
+      }
+    }
+
+    if (selectedShip) {
+      planningData.active_ship = selectedShip;
+      const name = selectedShip.name;
+      const tileValue = "active-" + name;
+
+      if (selectedShip.rotation === 0) {
+        for (let j = selectedShip.col; j < selectedShip.col + selectedShip.size; j++) {
+          if (planningData.player_grid.tiles[selectedShip.row][j] === name) {
+            planningData.player_grid.tiles[selectedShip.row][j] = tileValue;
+          }
+        }
+      } else {
+        for (let i = selectedShip.row; i < selectedShip.row + selectedShip.size; i++) {
+          if (planningData.player_grid.tiles[i][selectedShip.col] === name) {
+            planningData.player_grid.tiles[i][selectedShip.col] = tileValue;
+          }
+        }
+      }
+    }
+
+    fs.writeFile(planningPath, JSON.stringify(planningData, null, 2), (writeErr) => {
+      if (writeErr) {
+        console.error("Error setting active ship:", writeErr);
+        return res.status(500).json({ error: "Could not set active ship" });
+      }
+      res.status(200).json({ message: "Active ship set successfully", active_ship: planningData.active_ship });
+    });
   });
 });
 

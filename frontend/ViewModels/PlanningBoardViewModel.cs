@@ -110,12 +110,15 @@ public partial class PlanningBoardViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SelectShip(int size)
+    private async Task SelectShip(int size)
     {
         if (!ShipGroups.TryGetValue(size, out var group) || group.Count == 0) return;
 
         var shipToSelect = AvailableShips.FirstOrDefault(s => s.Size == size);
-        if (shipToSelect == null) return; 
+        if (shipToSelect == null) return;
+
+        if (ActiveShip != null) 
+            ActiveShip = null;
 
         ActiveShip = new PlacedShip
         {
@@ -130,25 +133,48 @@ public partial class PlanningBoardViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task PlaceShip(int index)
+    private async Task PlaceOrGetShip(int index)
     {
-        if (ActiveShip == null) return;
-
-        int gridSize = PlayerGrid.GridSize;
-        int row = index / gridSize;
-        int col = index % gridSize;
-
-        ActiveShip.Row = row;
-        ActiveShip.Col = col;
         try
         {
-            await _apiService.AddPlacedShipAsync(ActiveShip);
+            int gridSize = PlayerGrid.GridSize;
+            int row = index / gridSize;
+            int col = index % gridSize;
+
+            await _apiService.SetActiveOrPlaceShipAsync(row, col, ActiveShip);
             await LoadPlanningDataAsync();
-            ActiveShip = await _apiService.GetActiveShipAsync();
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Placement failed: {ex.Message}";
+            ErrorMessage = $"Action failed: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
+    private async Task ClearGrid()
+    {
+        try
+        {
+            await _apiService.ClearGridAsync();
+            await LoadPlanningDataAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Action failed: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
+    private async Task RotateActiveShip()
+    {
+        try
+        {
+            await _apiService.RotateActiveShipAsync();
+            await LoadPlanningDataAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Action failed: {ex.Message}";
         }
     }
 
