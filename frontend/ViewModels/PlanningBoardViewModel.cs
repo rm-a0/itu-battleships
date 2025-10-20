@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using BattleshipsAvalonia.Views;
 
 namespace BattleshipsAvalonia.ViewModels;
 
@@ -170,12 +171,19 @@ public partial class PlanningBoardViewModel : ObservableObject
     [RelayCommand]
     private async Task RotateActiveShip()
     {
-        await _apiService.RotateActiveShipAsync();
-        await LoadPlanningDataAsync();
+        try
+        {
+            await _apiService.RotateActiveShipAsync();
+            await LoadPlanningDataAsync();
+        }
+        catch (Exception)
+        {
+            return;
+        }
     }
 
     [RelayCommand]
-    private async Task StartGame(Window window)
+    public async Task StartGame(Window window)
     {
         if (IsLoading) return;
         try
@@ -183,8 +191,10 @@ public partial class PlanningBoardViewModel : ObservableObject
             IsLoading = true;
             ErrorMessage = string.Empty;
             await _apiService.SetCurrentScreenAsync("game");
-            //var gameWindow = _serviceProvider.GetRequiredService<GameBoard>();
-            //gameWindow.Show();
+            try { await _apiService.RemoveActiveShipAsync(); } catch (Exception) { }
+            try { await _apiService.DeselectActiveShipAsync(); } catch (Exception) { }
+            var gameWindow = _serviceProvider.GetRequiredService<GameBoard>();
+            gameWindow.Show();
             window.Close();
         }
         catch (Exception ex)

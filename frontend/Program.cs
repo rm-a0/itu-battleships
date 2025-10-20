@@ -16,10 +16,14 @@ class Program
         var services = new ServiceCollection();
 
         services.AddSingleton<ApiService>();
+
         services.AddTransient<MainWindowViewModel>();
         services.AddTransient<PlanningBoardViewModel>();
+        services.AddTransient<GameBoardViewModel>();
+
         services.AddTransient<MainWindow>();
         services.AddTransient<PlanningBoard>();
+        services.AddTransient<GameBoard>();
 
         ServiceProvider = services.BuildServiceProvider();
 

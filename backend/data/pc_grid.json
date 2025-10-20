@@ -1,5 +1,5 @@
 {
-  "gridSize": 7,
+  "gridSize": 10,
   "tiles": [
     [
       "empty",
@@ -8,12 +8,6 @@
       "empty",
       "empty",
       "empty",
-      "empty"
-    ],
-    [
-      "empty",
-      "empty",
-      "empty",
       "empty",
       "empty",
       "empty",
@@ -23,12 +17,6 @@
       "empty",
       "empty",
       "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
-    ],
-    [
       "empty",
       "empty",
       "empty",
@@ -44,6 +32,21 @@
       "empty",
       "empty",
       "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty"
+    ],
+    [
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
       "empty"
     ],
     [
@@ -53,9 +56,63 @@
       "empty",
       "empty",
       "empty",
+      "empty",
+      "empty",
+      "empty",
       "empty"
     ],
     [
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty"
+    ],
+    [
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty"
+    ],
+    [
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty"
+    ],
+    [
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty"
+    ],
+    [
+      "empty",
+      "empty",
+      "empty",
       "empty",
       "empty",
       "empty",
