@@ -1,16 +1,95 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:BattleshipsAvalonia.ViewModels"
+        xmlns:models="using:BattleshipsAvalonia.Models"
+        xmlns:converters="using:BattleshipsAvalonia.Converters"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="412" d:DesignHeight="917"
         x:Class="BattleshipsAvalonia.Views.GameBoard"
         x:DataType="vm:GameBoardViewModel"
+        x:Name="GameWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="BattleshipsAvalonia"
         WindowStartupLocation="CenterScreen"
         Width="412" Height="917"
         MinWidth="412" MinHeight="600"
         Background="{StaticResource Background}">
+    <Window.Resources>
+        <converters:SizeToWidthConverter x:Key="SizeToWidthConverter"/>
+        <converters:PcTileToBrushConverter x:Key="PcTileToBrushConverter"/>
+        <converters:PlayerTileToBrushConverter x:Key="PlayerTileToBrushConverter"/>
+    </Window.Resources>
 
+    <StackPanel>
+        <ItemsControl ItemsSource="{Binding GridIndices}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="{Binding #GameWindow.DataContext.PlayerGrid.GridSize}"
+                                 Rows="{Binding #GameWindow.DataContext.PlayerGrid.GridSize}"
+                                 Width="{Binding #GameWindow.DataContext.PlayerGrid.GridSize, 
+                                    Converter={StaticResource SizeToWidthConverter}, 
+                                    ConverterParameter=20}"
+                                 Height="{Binding #GameWindow.DataContext.PlayerGrid.GridSize, 
+                                    Converter={StaticResource SizeToWidthConverter}, 
+                                    ConverterParameter=20}"
+                                 Margin="20"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="x:Int32">
+                    <Button CornerRadius="5"
+                            Margin="2"
+                            Width="18" Height="18"
+                            FontSize="12"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center">
+                        <Button.Background>
+                            <MultiBinding Converter="{StaticResource PlayerTileToBrushConverter}">
+                                <Binding Path="."/>
+                                <Binding Path="#GameWindow.DataContext.PlayerGrid.Tiles"/>
+                                <Binding Path="#GameWindow.DataContext.PlayerGrid.GridSize"/>
+                            </MultiBinding>
+                        </Button.Background>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <ItemsControl ItemsSource="{Binding GridIndices}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="{Binding #GameWindow.DataContext.PcGrid.GridSize}"
+                                 Rows="{Binding #GameWindow.DataContext.PcGrid.GridSize}"
+                                 Width="{Binding #GameWindow.DataContext.PcGrid.GridSize, 
+                                    Converter={StaticResource SizeToWidthConverter}, 
+                                    ConverterParameter=40}"
+                                 Height="{Binding #GameWindow.DataContext.PcGrid.GridSize, 
+                                    Converter={StaticResource SizeToWidthConverter}, 
+                                    ConverterParameter=40}"
+                                 Margin="20"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="x:Int32">
+                    <Button CornerRadius="5"
+                            Margin="2"
+                            Width="36" Height="36"
+                            FontSize="12"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Command="{Binding #GameWindow.DataContext.ShootShipCommand}"
+                            CommandParameter="{Binding .}">
+                        <Button.Background>
+                            <MultiBinding Converter="{StaticResource PcTileToBrushConverter}">
+                                <Binding Path="."/>
+                                <Binding Path="#GameWindow.DataContext.PcGrid.Tiles"/>
+                                <Binding Path="#GameWindow.DataContext.PcGrid.GridSize"/>
+                            </MultiBinding>
+                        </Button.Background>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>   
 </Window>

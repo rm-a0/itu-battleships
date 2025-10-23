@@ -1,5 +1,5 @@
 {
-  "gridSize": 10,
+  "gridSize": 7,
   "tiles": [
     [
       "empty",
@@ -8,51 +8,45 @@
       "empty",
       "empty",
       "empty",
-      "empty",
-      "empty",
-      "empty",
       "empty"
+    ],
+    [
+      "empty",
+      "ship-ship1",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "ship-ship5"
+    ],
+    [
+      "empty",
+      "ship-ship1",
+      "ship-ship4",
+      "ship-ship4",
+      "ship-ship4",
+      "empty",
+      "ship-ship5"
+    ],
+    [
+      "ship-ship2",
+      "ship-ship2",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "ship-ship5"
     ],
     [
       "empty",
       "empty",
       "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
+      "ship-ship3",
+      "ship-ship3",
+      "ship-ship3",
+      "ship-ship5"
     ],
     [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
-    ],
-    [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
-    ],
-    [
-      "empty",
-      "empty",
-      "empty",
       "empty",
       "empty",
       "empty",
@@ -62,57 +56,6 @@
       "empty"
     ],
     [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
-    ],
-    [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
-    ],
-    [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
-    ],
-    [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
-    ],
-    [
-      "empty",
-      "empty",
-      "empty",
       "empty",
       "empty",
       "empty",

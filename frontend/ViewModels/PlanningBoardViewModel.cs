@@ -192,7 +192,6 @@ public partial class PlanningBoardViewModel : ObservableObject
             ErrorMessage = string.Empty;
             await _apiService.SetCurrentScreenAsync("game");
             try { await _apiService.RemoveActiveShipAsync(); } catch (Exception) { }
-            try { await _apiService.DeselectActiveShipAsync(); } catch (Exception) { }
             var gameWindow = _serviceProvider.GetRequiredService<GameBoard>();
             gameWindow.Show();
             window.Close();

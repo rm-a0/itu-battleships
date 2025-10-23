@@ -9,7 +9,12 @@ public class SizeToWidthConverter : IValueConverter
     {
         if (value is int size)
         {
-            return size * 40;
+            double multiplier = 40.0;
+            if (parameter != null && double.TryParse(parameter.ToString(), NumberStyles.Any, culture, out double parsedMultiplier))
+            {
+                multiplier = parsedMultiplier;
+            }
+            return size * multiplier;
         }
         return 0;
     }

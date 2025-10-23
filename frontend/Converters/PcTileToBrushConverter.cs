@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace BattleshipsAvalonia.Converters;
 
-public class TileToBrushConverter : BaseTileConverter
+public class PcTileToBrushConverter : BaseTileConverter
 {
     public override object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
@@ -19,13 +19,9 @@ public class TileToBrushConverter : BaseTileConverter
             {
                 string tile = tiles[row][col] ?? "empty";
 
-                if (tile == "empty")
+                if (tile == "empty" || tile.StartsWith("ship-"))
                 {
                     return GetBrush("Secondary", "#1A3C5C");
-                }
-                if (tile.Contains("active"))
-                {
-                    return GetBrush("Primary", "#4DA8FF");
                 }
                 if (tile == "hit")
                 {
@@ -35,9 +31,8 @@ public class TileToBrushConverter : BaseTileConverter
                 {
                     return GetBrush("InfoBlue", "#4DA8FF");
                 }
-                return GetBrush("TextPrimary", "#E6ECEF");
             }
         }
-        return GetBrush("SuccessRed", "#FF4C4C");
+        return GetBrush("SuccessRed", "#FF4C4C"); 
     }
 }

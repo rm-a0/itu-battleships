@@ -90,9 +90,9 @@ app.get("/api/pc-grid", (req: Request, res: Response) => {
   });
 });
 
-// Endpoint to change pc grid
+// Endpoint to change or initialize PC grid
 app.post("/api/pc-grid", (req: Request, res: Response) => {
-  const { gridSize, tiles } = req.body;
+  const { gridSize, tiles, initializeWithShips } = req.body;
 
   // Fetch data from file
   fs.readFile(pcGridPath, "utf8", (err, data) => {
@@ -109,22 +109,122 @@ app.post("/api/pc-grid", (req: Request, res: Response) => {
       return res.status(500).json({ error: "Invalid grid data format" });
     }
 
-    // Actualize only sended parts
+    // Default grid if none provided
     const updatedGrid = {
-      gridSize: gridSize || currentGrid.gridSize,
-      tiles: tiles || currentGrid.tiles
+      gridSize: gridSize || currentGrid.gridSize || 10,
+      tiles: tiles || currentGrid.tiles || Array(gridSize || 10).fill(null).map(() => Array(gridSize || 10).fill("empty")),
     };
 
-    // Write new data to file
-    fs.writeFile(pcGridPath, JSON.stringify(updatedGrid, null, 2), (writeErr) => {
-      if (writeErr) {
-        console.error("Error saving grid data:", writeErr);
-        return res.status(500).json({ error: "Could not save grid data" });
-      }
-      res.status(200).json({ message: "Grid updated successfully", updatedGrid });
-    });
+    // Initialize with ships if requested
+    if (initializeWithShips) {
+      // Fetch ship data from planning.json
+      fs.readFile(planningPath, 'utf8', (err, planningDataRaw) => {
+        if (err) {
+          console.error("Error reading planning data:", err);
+          return res.status(500).json({ error: "Could not read planning data" });
+        }
+
+        let planningData: IPlanningData;
+        try {
+          planningData = JSON.parse(planningDataRaw);
+        } catch (parseError) {
+          console.error("Error parsing planning data:", parseError);
+          return res.status(500).json({ error: "Invalid planning data format" });
+        }
+
+        if (!planningData.all_ships || planningData.all_ships.length === 0) {
+          return res.status(400).json({ error: "No ships available in planning data" });
+        }
+
+        // Initialize grid with ships
+        updatedGrid.tiles = initializePcGridWithShips(updatedGrid.gridSize, updatedGrid.tiles, planningData.all_ships);
+
+        // Write new data to file
+        fs.writeFile(pcGridPath, JSON.stringify(updatedGrid, null, 2), (writeErr) => {
+          if (writeErr) {
+            console.error("Error saving grid data:", writeErr);
+            return res.status(500).json({ error: "Could not save grid data" });
+          }
+          res.status(200).json({ message: "PC grid initialized with ships", updatedGrid });
+        });
+      });
+    } else {
+      // Update without ships
+      fs.writeFile(pcGridPath, JSON.stringify(updatedGrid, null, 2), (writeErr) => {
+        if (writeErr) {
+          console.error("Error saving grid data:", writeErr);
+          return res.status(500).json({ error: "Could not save grid data" });
+        }
+        res.status(200).json({ message: "Grid updated successfully", updatedGrid });
+      });
+    }
   });
 });
+
+// Helper function to initialize PC grid with random ship placements
+function initializePcGridWithShips(gridSize: number, tiles: string[][], ships: IShip[]): string[][] {
+  const newTiles = tiles.map(row => [...row]); // Clone tiles
+  const placedShips: IPlacedShip[] = [];
+
+  // Randomly place each ship
+  for (const ship of ships) {
+    let placed = false;
+    const maxAttempts = 100; // Prevent infinite loops
+    let attempts = 0;
+
+    while (!placed && attempts < maxAttempts) {
+      const rotation = Math.random() < 0.5 ? 0 : 90; // Randomly choose horizontal or vertical
+      const maxRow = rotation === 0 ? gridSize - 1 : gridSize - ship.size;
+      const maxCol = rotation === 0 ? gridSize - ship.size : gridSize - 1;
+      if (maxRow < 0 || maxCol < 0) {
+        attempts++;
+        continue; // Skip if ship is too large for grid
+      }
+
+      const row = Math.floor(Math.random() * (maxRow + 1));
+      const col = Math.floor(Math.random() * (maxCol + 1));
+
+      // Check if the position is valid
+      let canPlace = true;
+      if (rotation === 0) {
+        for (let j = col; j < col + ship.size; j++) {
+          if (newTiles[row][j] !== "empty") {
+            canPlace = false;
+            break;
+          }
+        }
+      } else {
+        for (let i = row; i < row + ship.size; i++) {
+          if (newTiles[i][col] !== "empty") {
+            canPlace = false;
+            break;
+          }
+        }
+      }
+
+      // Place the ship if valid
+      if (canPlace) {
+        if (rotation === 0) {
+          for (let j = col; j < col + ship.size; j++) {
+            newTiles[row][j] = `ship-${ship.name}`;
+          }
+        } else {
+          for (let i = row; i < row + ship.size; i++) {
+            newTiles[i][col] = `ship-${ship.name}`;
+          }
+        }
+        placedShips.push({ ...ship, row, col, rotation });
+        placed = true;
+      }
+      attempts++;
+    }
+    if (!placed) {
+      console.warn(`Could not place ship ${ship.name} after ${maxAttempts} attempts`);
+    }
+  }
+
+  return newTiles;
+}
 
 // ------ GRID PC END
 
@@ -475,7 +575,7 @@ app.get('/api/planning/active-ship', (req: Request, res: Response) => {
   });
 });
 
-// Endpoint to remove active ship
+// Endpoint to deselect active ship (remove active- prefix only)
 app.post('/api/planning/remove-active-ship', (req: Request, res: Response) => {
   fs.readFile(planningPath, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
     if (err) {
@@ -492,7 +592,7 @@ app.post('/api/planning/remove-active-ship', (req: Request, res: Response) => {
     }
 
     if (planningData.active_ship === null) {
-      return res.status(400).json({ error: "No active ship to remove" });
+      return res.status(400).json({ error: "No active ship to deselect" });
     }
 
     const as = planningData.active_ship;
@@ -500,35 +600,30 @@ app.post('/api/planning/remove-active-ship', (req: Request, res: Response) => {
     const prefix = "active-";
     const tileValue = prefix + name;
 
-    // Clear active ship tiles (remove active- prefix in the process)
+    // Remove active- prefix from tiles, restoring the original ship name
     if (as.rotation === 0) {
       for (let j = as.col; j < as.col + as.size; j++) {
-        planningData.player_grid.tiles[as.row][j] = "empty";
+        if (planningData.player_grid.tiles[as.row][j] === tileValue) {
+          planningData.player_grid.tiles[as.row][j] = name;
+        }
       }
     } else {
       for (let i = as.row; i < as.row + as.size; i++) {
-        planningData.player_grid.tiles[i][as.col] = "empty";
+        if (planningData.player_grid.tiles[i][as.col] === tileValue) {
+          planningData.player_grid.tiles[i][as.col] = name;
+        }
       }
     }
 
-    const newAvailableShip: IShip = {
-      id: as.id,
-      size: as.size,
-      color: as.color,
-      rotation: 0,
-      name: as.name
-    };
-    planningData.available_ships?.push(newAvailableShip); // Add to available ships
-
-    planningData.placed_ships = planningData.placed_ships?.filter((ship: IPlacedShip) => ship.id !== as.id) || []; // Remove from placed ships
-    planningData.active_ship = null; // Clear active ship
+    // Clear active ship without modifying placed_ships or available_ships
+    planningData.active_ship = null;
 
     fs.writeFile(planningPath, JSON.stringify(planningData, null, 2), (writeErr) => {
       if (writeErr) {
-        console.error("Error removing active ship:", writeErr);
-        return res.status(500).json({ error: "Could not remove active ship" });
+        console.error("Error deselecting active ship:", writeErr);
+        return res.status(500).json({ error: "Could not deselect active ship" });
       }
-      res.status(200).json({ message: "Active ship removed successfully" });
+      res.status(200).json({ message: "Active ship deselected successfully" });
     });
   });
 });
@@ -844,3 +939,4 @@ app.get('/', (req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+

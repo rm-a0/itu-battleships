@@ -16,7 +16,6 @@
         MinWidth="412" MinHeight="600"
         Background="{StaticResource Background}">
     <Window.Resources>
-        <converters:TileToDisplayConverter x:Key="TileToDisplayConverter"/>
         <converters:SizeToWidthConverter x:Key="SizeToWidthConverter"/>
         <converters:TileToBrushConverter x:Key="TileToBrushConverter"/>
         <converters:SizeToRangeConverter x:Key="SizeToRangeConverter"/>
@@ -93,15 +92,11 @@
                             VerticalContentAlignment="Center"
                             Command="{Binding #PlanningWindow.DataContext.PlaceOrGetShipCommand}"
                             CommandParameter="{Binding .}">
-                        <Button.Content>
-                            <Binding Path="."
-                                     Converter="{StaticResource TileToDisplayConverter}"
-                                     ConverterParameter="{Binding #PlanningWindow.DataContext.PlayerGrid.Tiles}"/>
-                        </Button.Content>
                         <Button.Background>
                             <MultiBinding Converter="{StaticResource TileToBrushConverter}">
                                 <Binding Path="."/>
                                 <Binding Path="#PlanningWindow.DataContext.PlayerGrid.Tiles"/>
+                                <Binding Path="#PlanningWindow.DataContext.PlayerGrid.GridSize"/>
                             </MultiBinding>
                         </Button.Background>
                     </Button>

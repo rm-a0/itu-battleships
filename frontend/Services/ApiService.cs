@@ -77,9 +77,9 @@ public class ApiService
         return await GetAsync<Grid>("api/pc-grid");
     }
 
-    public async Task UpdatePcGridAsync(int? gridSize = null, string[][]? tiles = null)
+    public async Task UpdatePcGridAsync(int? gridSize = null, string[][]? tiles = null, bool initializeWithShips = false)
     {
-        await PostAsync("api/pc-grid", new { gridSize, tiles });
+        await PostAsync("api/pc-grid", new { gridSize, tiles, initializeWithShips });
     }
 
     public async Task<GameSettings> GetSettingsAsync()
@@ -167,7 +167,7 @@ public class ApiService
                 .ToArray()
         };
         await UpdatePlayerGridAsync(emptyGrid, mode: "reset");
-        await UpdatePcGridAsync(gridSize, emptyGrid.Tiles);
+        await UpdatePcGridAsync(gridSize, emptyGrid.Tiles, initializeWithShips: true);
     }
 
     public async Task<string[][]> UpdateGridCellAsync(int row, int col, string target, string[][] currentGrid)
