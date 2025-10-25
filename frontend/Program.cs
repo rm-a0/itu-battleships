@@ -20,10 +20,12 @@ class Program
         services.AddTransient<MainWindowViewModel>();
         services.AddTransient<PlanningBoardViewModel>();
         services.AddTransient<GameBoardViewModel>();
+        services.AddTransient<MessagePopupViewModel>();
 
         services.AddTransient<MainWindow>();
         services.AddTransient<PlanningBoard>();
         services.AddTransient<GameBoard>();
+        services.AddTransient<MessagePopup>();
 
         ServiceProvider = services.BuildServiceProvider();
 

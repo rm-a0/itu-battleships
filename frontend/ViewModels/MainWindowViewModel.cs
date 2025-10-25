@@ -47,12 +47,29 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task Play(Window window)
     {
-        await _apiService.UpdateSettingsAsync(BoardSizeDisplay);
-        await _apiService.CreateGridsAsync(CurrentBoardSize);
-        await _apiService.SetAvailableShipsAsync();
-        await _apiService.SetCurrentScreenAsync("planning");
-        var planningWindow = _serviceProvider.GetRequiredService<PlanningBoard>();
-        planningWindow.Show();
-        window.Close();
+        try
+        {
+            await _apiService.UpdateSettingsAsync(BoardSizeDisplay);
+            await _apiService.CreateGridsAsync(CurrentBoardSize);
+            await _apiService.SetAvailableShipsAsync();
+            await _apiService.SetCurrentScreenAsync("planning");
+            var planningWindow = _serviceProvider.GetRequiredService<PlanningBoard>();
+            planningWindow.Show();
+            window.Close();
+        }
+        catch (Exception ex)
+        {
+            var viewModel = new MessagePopupViewModel(ex.Message);
+            var popup = new MessagePopup { DataContext = viewModel };
+            var popupWindow = new Window
+            {
+                Content = popup,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                CanResize = false,
+                Title = "Error"
+            };
+            await popupWindow.ShowDialog(window);
+        }
     }
 }
