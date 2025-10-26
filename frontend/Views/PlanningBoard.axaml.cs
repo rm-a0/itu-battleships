@@ -12,6 +12,8 @@ public partial class PlanningBoard : Window
     public PlanningBoard()
     {
         InitializeComponent();
-        DataContext = Program.ServiceProvider.GetRequiredService<PlanningBoardViewModel>();
+        var viewModel = Program.ServiceProvider.GetRequiredService<PlanningBoardViewModel>();
+        viewModel.SetParentWindow(this);
+        DataContext = viewModel;
     }
 }

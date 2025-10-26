@@ -10,6 +10,8 @@ public partial class GameBoard : Window
     public GameBoard()
     {
         InitializeComponent();
-        DataContext = Program.ServiceProvider.GetRequiredService<GameBoardViewModel>();
+        var viewModel = Program.ServiceProvider.GetRequiredService<GameBoardViewModel>();
+        viewModel.SetParentWindow(this);
+        DataContext = viewModel;
     }
 }

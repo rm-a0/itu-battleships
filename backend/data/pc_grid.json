@@ -2,67 +2,67 @@
   "gridSize": 7,
   "tiles": [
     [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
+      "hit",
+      "miss",
+      "hit",
+      "hit",
+      "hit",
+      "miss",
+      "miss"
     ],
     [
-      "empty",
-      "ship-ship2",
-      "ship-ship2",
-      "empty",
-      "empty",
-      "empty",
-      "ship-ship3"
+      "hit",
+      "miss",
+      "miss",
+      "miss",
+      "miss",
+      "miss",
+      "miss"
     ],
     [
-      "empty",
-      "ship-ship1",
-      "ship-ship1",
-      "empty",
-      "ship-ship5",
-      "ship-ship4",
-      "ship-ship3"
-    ],
-    [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "ship-ship5",
-      "ship-ship4",
-      "ship-ship3"
-    ],
-    [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "ship-ship5",
-      "ship-ship4",
-      "empty"
-    ],
-    [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
       "ship-ship5",
       "empty",
-      "empty"
+      "miss",
+      "miss",
+      "miss",
+      "miss",
+      "miss"
     ],
     [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
+      "hit",
+      "ship-ship3",
+      "hit",
+      "hit",
+      "miss",
+      "miss",
+      "miss"
+    ],
+    [
+      "miss",
+      "miss",
+      "miss",
+      "hit",
+      "miss",
+      "miss",
+      "miss"
+    ],
+    [
+      "miss",
+      "miss",
+      "miss",
+      "hit",
+      "hit",
+      "hit",
+      "miss"
+    ],
+    [
+      "miss",
+      "miss",
+      "miss",
+      "miss",
+      "miss",
+      "miss",
+      "miss"
     ]
   ]
 }

@@ -3,67 +3,67 @@
     "gridSize": 7,
     "tiles": [
       [
+        "hit",
+        "miss",
         "empty",
         "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty"
+        "hit",
+        "miss",
+        "miss"
       ],
       [
+        "hit",
+        "miss",
+        "miss",
         "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty"
+        "hit",
+        "miss",
+        "miss"
       ],
       [
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty"
+        "hit",
+        "miss",
+        "hit",
+        "miss",
+        "hit",
+        "miss",
+        "miss"
       ],
       [
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty"
+        "miss",
+        "miss",
+        "hit",
+        "miss",
+        "miss",
+        "miss",
+        "miss"
       ],
       [
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty"
+        "miss",
+        "miss",
+        "hit",
+        "miss",
+        "miss",
+        "miss",
+        "hit"
       ],
       [
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty"
+        "miss",
+        "miss",
+        "hit",
+        "miss",
+        "hit",
+        "miss",
+        "hit"
       ],
       [
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty",
-        "empty"
+        "miss",
+        "miss",
+        "miss",
+        "miss",
+        "hit",
+        "miss",
+        "miss"
       ]
     ]
   },
@@ -104,43 +104,53 @@
       "name": "ship5"
     }
   ],
-  "available_ships": [
+  "available_ships": [],
+  "placed_ships": [
     {
-      "id": 1,
-      "size": 2,
-      "color": "purple",
+      "id": 5,
+      "size": 4,
+      "color": "grey",
       "rotation": 90,
-      "name": "ship1"
-    },
-    {
-      "id": 2,
-      "size": 2,
-      "color": "orange",
-      "rotation": 90,
-      "name": "ship2"
+      "name": "ship5",
+      "row": 2,
+      "col": 2
     },
     {
       "id": 3,
       "size": 3,
       "color": "green",
       "rotation": 90,
-      "name": "ship3"
+      "name": "ship3",
+      "row": 0,
+      "col": 4
+    },
+    {
+      "id": 1,
+      "size": 2,
+      "color": "purple",
+      "rotation": 90,
+      "name": "ship1",
+      "row": 4,
+      "col": 6
     },
     {
       "id": 4,
       "size": 3,
       "color": "blue",
       "rotation": 90,
-      "name": "ship4"
+      "name": "ship4",
+      "row": 0,
+      "col": 0
     },
     {
-      "id": 5,
-      "size": 4,
-      "color": "grey",
+      "id": 2,
+      "size": 2,
+      "color": "orange",
       "rotation": 90,
-      "name": "ship5"
+      "name": "ship2",
+      "row": 5,
+      "col": 4
     }
   ],
-  "placed_ships": null,
   "active_ship": null
 }

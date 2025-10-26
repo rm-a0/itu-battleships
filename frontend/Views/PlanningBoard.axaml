@@ -123,7 +123,6 @@
                     Background="Blue"
                     Foreground="{StaticResource TextPrimary}"/>
         </StackPanel>
-        <TextBlock Text="{Binding ErrorMessage}" Foreground="Red"/>
 
         <Button Width="234"
                 Height="58"
@@ -132,8 +131,7 @@
                 Foreground="{StaticResource TextPrimary}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
-                Command="{Binding StartGame}"
-                CommandParameter="{Binding $parent[Window]}">
+                Command="{Binding StartGame}">
             <TextBlock Text="CONFIRM"
                        FontSize="32"
                        HorizontalAlignment="Center"

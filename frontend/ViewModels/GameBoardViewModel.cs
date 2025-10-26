@@ -5,6 +5,7 @@ using BattleshipsAvalonia.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ public partial class GameBoardViewModel : ObservableObject
 {
     private readonly ApiService _apiService;
     private readonly IServiceProvider _serviceProvider;
+    private Window? _parentWindow;
 
     [ObservableProperty]
     private bool _isLoading = false;
@@ -28,14 +30,16 @@ public partial class GameBoardViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<int> _gridIndices = new();
 
-    [ObservableProperty]
-    private string _errorMessage = string.Empty;
-
-    public GameBoardViewModel(IServiceProvider serviceProvider)
+    public GameBoardViewModel(IServiceProvider serviceProvider, ApiService apiService)
     {
         _serviceProvider = serviceProvider;
-        _apiService = serviceProvider.GetRequiredService<ApiService>();
+        _apiService = apiService;
         Task.Run(LoadGameDataAsync).GetAwaiter().GetResult();
+    }
+
+    public void SetParentWindow(Window window)
+    {
+        _parentWindow = window ?? throw new ArgumentNullException(nameof(window));
     }
 
     private async Task LoadGameDataAsync()
@@ -43,7 +47,6 @@ public partial class GameBoardViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            ErrorMessage = string.Empty;
 
             PlayerGrid = await _apiService.GetPlayerGridAsync();
             PcGrid = await _apiService.GetPcGridAsync();
@@ -56,8 +59,11 @@ public partial class GameBoardViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Error loading game data: {ex.Message}";
-
+            await ShowPopupAsync($"Error loading game data: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
@@ -67,7 +73,6 @@ public partial class GameBoardViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            ErrorMessage = string.Empty;
 
             if (!await ShootPcTile(index))
                 return;
@@ -76,7 +81,7 @@ public partial class GameBoardViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Error processing shot: {ex.Message}";
+            await ShowPopupAsync($"Error processing shot: {ex.Message}");
         }
         finally
         {
@@ -136,7 +141,7 @@ public partial class GameBoardViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Error processing PC shot: {ex.Message}";
+            await ShowPopupAsync($"Error processing PC shot: {ex.Message}");
         }
     }
 
@@ -147,11 +152,22 @@ public partial class GameBoardViewModel : ObservableObject
         if (hasWon || hasLost)
         {
             await _apiService.SetCurrentScreenAsync("win");
-            if (hasLost)
-                Console.WriteLine("you Lost");
-            if (hasWon)
-                Console.WriteLine("you won");
-            //change window
+            string message = hasWon ? "You won!" : "You lost!";
+            await ShowPopupAsync(message);
+            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+            mainWindow.Show();
+            _parentWindow?.Close();
         }
+    }
+
+    private async Task ShowPopupAsync(string message)
+    {
+        if (_parentWindow == null)
+        {
+            System.Diagnostics.Debug.WriteLine($"Popup not shown: {message} (Parent window not set)");
+            return;
+        }
+        var viewModel = new MessagePopupViewModel(message);
+        await MessagePopupService.ShowPopupAsync<MessagePopup, MessagePopupViewModel>(_parentWindow, viewModel);
     }
 }

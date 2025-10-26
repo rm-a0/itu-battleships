@@ -1,24 +1,25 @@
 using Avalonia.Controls;
 using BattleshipsAvalonia.Models;
 using BattleshipsAvalonia.Services;
+using BattleshipsAvalonia.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using BattleshipsAvalonia.Views;
 
 namespace BattleshipsAvalonia.ViewModels;
 
 public record CellPosition(int Row, int Col);
-
 public record ShipGroupData(int Count, Ship Representative);
 
 public partial class PlanningBoardViewModel : ObservableObject
 {
     private readonly ApiService _apiService;
     private readonly IServiceProvider _serviceProvider;
+    private Window? _parentWindow;
 
     [ObservableProperty]
     private ObservableCollection<Ship> _availableShips = new();
@@ -29,7 +30,7 @@ public partial class PlanningBoardViewModel : ObservableObject
     [ObservableProperty]
     private PlacedShip? _activeShip;
 
-    public IReadOnlyDictionary<int, ShipGroupData> ShipGroups => AllShips 
+    public IReadOnlyDictionary<int, ShipGroupData> ShipGroups => AllShips
         .GroupBy(s => s.Size)
         .OrderByDescending(g => g.Key)
         .ToDictionary(
@@ -49,14 +50,16 @@ public partial class PlanningBoardViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<int> _gridIndices = new();
 
-    [ObservableProperty]
-    private string _errorMessage = string.Empty;
-
-    public PlanningBoardViewModel(IServiceProvider serviceProvider)
+    public PlanningBoardViewModel(IServiceProvider serviceProvider, ApiService apiService)
     {
         _serviceProvider = serviceProvider;
-        _apiService = serviceProvider.GetRequiredService<ApiService>();
+        _apiService = apiService;
         Task.Run(LoadPlanningDataAsync).GetAwaiter().GetResult();
+    }
+
+    public void SetParentWindow(Window window)
+    {
+        _parentWindow = window ?? throw new ArgumentNullException(nameof(window));
     }
 
     private async Task LoadPlanningDataAsync()
@@ -64,7 +67,6 @@ public partial class PlanningBoardViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            ErrorMessage = string.Empty;
 
             var planningData = await _apiService.GetPlanningDataAsync();
 
@@ -102,7 +104,7 @@ public partial class PlanningBoardViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Error loading planning data: {ex.Message}";
+            await ShowErrorPopupAsync($"Error loading planning data: {ex.Message}");
         }
         finally
         {
@@ -121,7 +123,7 @@ public partial class PlanningBoardViewModel : ObservableObject
         await _apiService.DeselectActiveShipAsync();
         await LoadPlanningDataAsync();
 
-        if (ActiveShip != null) 
+        if (ActiveShip != null)
             ActiveShip = null;
 
         ActiveShip = new PlacedShip
@@ -150,7 +152,7 @@ public partial class PlanningBoardViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Action failed: {ex.Message}";
+            await ShowErrorPopupAsync($"Action failed: {ex.Message}");
         }
     }
 
@@ -164,45 +166,55 @@ public partial class PlanningBoardViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Action failed: {ex.Message}";
+            await ShowErrorPopupAsync($"Error clearing grid: {ex.Message}");
         }
     }
 
     [RelayCommand]
     private async Task RotateActiveShip()
     {
-        try
-        {
-            await _apiService.RotateActiveShipAsync();
-            await LoadPlanningDataAsync();
-        }
-        catch (Exception)
-        {
-            return;
-        }
+        try { await _apiService.RotateActiveShipAsync(); } catch { }
+        await LoadPlanningDataAsync();
     }
 
     [RelayCommand]
-    public async Task StartGame(Window window)
+    public async Task StartGame()
     {
         if (IsLoading) return;
+
+        if (AvailableShips.Any())
+        {
+            await ShowErrorPopupAsync("Please place all ships before starting the game.");
+            return;
+        }
+
         try
         {
             IsLoading = true;
-            ErrorMessage = string.Empty;
             await _apiService.SetCurrentScreenAsync("game");
-            try { await _apiService.RemoveActiveShipAsync(); } catch (Exception) { }
+            try { await _apiService.RemoveActiveShipAsync(); } catch { }
             var gameWindow = _serviceProvider.GetRequiredService<GameBoard>();
             gameWindow.Show();
-            window.Close();
+            _parentWindow?.Close();
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Error starting game: {ex.Message}";
+            await ShowErrorPopupAsync($"Error starting game: {ex.Message}");
         }
         finally
         {
             IsLoading = false;
         }
+    }
+
+    private async Task ShowErrorPopupAsync(string message)
+    {
+        if (_parentWindow == null)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error popup not shown: {message} (Parent window not set)");
+            return;
+        }
+        var viewModel = new MessagePopupViewModel(message);
+        await MessagePopupService.ShowPopupAsync<MessagePopup, MessagePopupViewModel>(_parentWindow, viewModel);
     }
 }
