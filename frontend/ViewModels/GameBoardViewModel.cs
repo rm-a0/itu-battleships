@@ -68,6 +68,20 @@ public partial class GameBoardViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void CloseWindow()
+    {
+        _parentWindow?.Close();
+    }
+
+    [RelayCommand]
+    private async Task Surrender()
+    {
+        await ShowPopupAsync("Do you really want to surrender?");
+        await ShowPopupAsync("You Lost!");
+        _parentWindow?.Close();
+    }
+
+    [RelayCommand]
     private async Task ShootShip(int index)
     {
         try

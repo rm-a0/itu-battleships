@@ -12,7 +12,7 @@ public partial class MainWindowViewModel : ObservableObject
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ApiService _apiService;
-    private readonly int[] _boardSizes = { 7, 10 };
+    private readonly int[] _boardSizes = { 6, 7, 8, 9 };
     private int _currentIndex = 0;
 
     [ObservableProperty]

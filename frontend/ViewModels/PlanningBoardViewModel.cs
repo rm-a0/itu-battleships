@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace BattleshipsAvalonia.ViewModels;
@@ -207,6 +208,12 @@ public partial class PlanningBoardViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private async Task CloseWindow()
+    {
+        _parentWindow?.Close();
+    }
+
     private async Task ShowErrorPopupAsync(string message)
     {
         if (_parentWindow == null)
@@ -217,4 +224,5 @@ public partial class PlanningBoardViewModel : ObservableObject
         var viewModel = new MessagePopupViewModel(message);
         await MessagePopupService.ShowPopupAsync<MessagePopup, MessagePopupViewModel>(_parentWindow, viewModel);
     }
+
 }

@@ -1,11 +1,13 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:svg="clr-namespace:Avalonia.Svg.Skia;assembly=Avalonia.Svg.Skia"
         xmlns:vm="using:BattleshipsAvalonia.ViewModels"
         xmlns:models="using:BattleshipsAvalonia.Models"
         xmlns:converters="using:BattleshipsAvalonia.Converters"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="412" d:DesignHeight="917"
+        mc:Ignorable="d"
+        d:DesignWidth="412" d:DesignHeight="917"
         x:Class="BattleshipsAvalonia.Views.PlanningBoard"
         x:DataType="vm:PlanningBoardViewModel"
         x:Name="PlanningWindow"
@@ -16,127 +18,162 @@
         MinWidth="412" MinHeight="600"
         Background="{StaticResource Background}"
         SystemDecorations="None">
+
     <Window.Resources>
         <converters:SizeToWidthConverter x:Key="SizeToWidthConverter"/>
         <converters:TileToBrushConverter x:Key="TileToBrushConverter"/>
         <converters:SizeToRangeConverter x:Key="SizeToRangeConverter"/>
         <converters:IsShipSizeSelectedConverter x:Key="IsShipSizeSelectedConverter"/>
     </Window.Resources>
-    <StackPanel>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-            <ItemsControl ItemsSource="{Binding ShipGroups}">
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <Grid Grid.Row="0">
+            <Button Command="{Binding CloseWindowCommand}"
+                    HorizontalAlignment="Right"
+                    Width="30"
+                    Height="30"
+                    FontSize="16"
+                    Margin="20"
+                    Foreground="{StaticResource TextPrimary}">
+                <svg:Svg Path="/Assets/close.svg"
+                         Width="30"
+                         Height="30"
+                         Stretch="Uniform"/>
+            </Button>
+        </Grid>
+
+        <StackPanel Grid.Row="1"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                <ItemsControl ItemsSource="{Binding ShipGroups}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" 
+                                        Margin="10 80 10 0">
+                                <Button Command="{Binding #PlanningWindow.DataContext.SelectShipCommand}"
+                                        CommandParameter="{Binding Key}"
+                                        VerticalAlignment="Bottom">
+                                    <ItemsControl ItemsSource="{Binding Key, Converter={StaticResource SizeToRangeConverter}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Vertical"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Width="22" Height="22" Margin="4" CornerRadius="4">
+                                                    <Border.Background>
+                                                        <MultiBinding Converter="{StaticResource IsShipSizeSelectedConverter}">
+                                                            <Binding Path="$parent[ItemsControl].DataContext.Key"/>
+                                                            <Binding Path="#PlanningWindow.DataContext.ActiveShip.Size"/>
+                                                        </MultiBinding>
+                                                    </Border.Background>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Button>
+                                <TextBlock VerticalAlignment="Bottom" 
+                                           Margin="5 0 0 5" 
+                                           FontSize="24"
+                                           Text="{Binding Value.Count, StringFormat='x{0}'}"
+                                           Foreground="{StaticResource TextSecondary}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <ItemsControl ItemsSource="{Binding GridIndices}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
+                        <UniformGrid Columns="{Binding #PlanningWindow.DataContext.PlayerGrid.GridSize}"
+                                     Rows="{Binding #PlanningWindow.DataContext.PlayerGrid.GridSize}"
+                                     Width="{Binding #PlanningWindow.DataContext.PlayerGrid.GridSize, 
+                                        Converter={StaticResource SizeToWidthConverter}, 
+                                        ConverterParameter=40}"
+                                     Height="{Binding #PlanningWindow.DataContext.PlayerGrid.GridSize, 
+                                        Converter={StaticResource SizeToWidthConverter}, 
+                                        ConverterParameter=40}"
+                                     Margin="20"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" 
-                                    Margin="10 150 10 0">
-                            <Button Command="{Binding #PlanningWindow.DataContext.SelectShipCommand}"
-                                    CommandParameter="{Binding Key}"
-                                    VerticalAlignment="Bottom">
-                                <ItemsControl ItemsSource="{Binding Key, Converter={StaticResource SizeToRangeConverter}}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Orientation="Vertical"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Width="22" Height="22" Margin="4" CornerRadius="4">
-                                                <Border.Background>
-                                                    <MultiBinding Converter="{StaticResource IsShipSizeSelectedConverter}">
-                                                        <Binding Path="$parent[ItemsControl].DataContext.Key"/>
-                                                        <Binding Path="#PlanningWindow.DataContext.ActiveShip.Size"/>
-                                                    </MultiBinding>
-                                                </Border.Background>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </Button>
-                            <TextBlock VerticalAlignment="Bottom" 
-                                    Margin="5 0 0 5" 
-                                    FontSize="24"
-                                    Text="{Binding Value.Count, StringFormat='x{0}'}"
-                                    Foreground="{StaticResource TextSecondary}"/>
-                        </StackPanel>
+                    <DataTemplate DataType="x:Int32">
+                        <Button CornerRadius="5"
+                                Margin="2"
+                                Width="36" Height="36"
+                                FontSize="12"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Command="{Binding #PlanningWindow.DataContext.PlaceOrGetShipCommand}"
+                                CommandParameter="{Binding .}">
+                            <Button.Background>
+                                <MultiBinding Converter="{StaticResource TileToBrushConverter}">
+                                    <Binding Path="."/>
+                                    <Binding Path="#PlanningWindow.DataContext.PlayerGrid.Tiles"/>
+                                    <Binding Path="#PlanningWindow.DataContext.PlayerGrid.GridSize"/>
+                                </MultiBinding>
+                            </Button.Background>
+                        </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </StackPanel>
 
-        <ItemsControl ItemsSource="{Binding GridIndices}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <UniformGrid Columns="{Binding #PlanningWindow.DataContext.PlayerGrid.GridSize}"
-                                 Rows="{Binding #PlanningWindow.DataContext.PlayerGrid.GridSize}"
-                                 Width="{Binding #PlanningWindow.DataContext.PlayerGrid.GridSize, 
-                                    Converter={StaticResource SizeToWidthConverter}, 
-                                    ConverterParameter=40}"
-                                 Height="{Binding #PlanningWindow.DataContext.PlayerGrid.GridSize, 
-                                    Converter={StaticResource SizeToWidthConverter}, 
-                                    ConverterParameter=40}"
-                                 Margin="20"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="x:Int32">
-                    <Button CornerRadius="5"
-                            Margin="2"
-                            Width="36" Height="36"
-                            FontSize="12"
-                            HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center"
-                            Command="{Binding #PlanningWindow.DataContext.PlaceOrGetShipCommand}"
-                            CommandParameter="{Binding .}">
-                        <Button.Background>
-                            <MultiBinding Converter="{StaticResource TileToBrushConverter}">
-                                <Binding Path="."/>
-                                <Binding Path="#PlanningWindow.DataContext.PlayerGrid.Tiles"/>
-                                <Binding Path="#PlanningWindow.DataContext.PlayerGrid.GridSize"/>
-                            </MultiBinding>
-                        </Button.Background>
+            <Grid HorizontalAlignment="Center" 
+                  Margin="20,0,20,80"
+                  Width="{Binding PlayerGrid.GridSize, Converter={StaticResource SizeToWidthConverter}, ConverterParameter=40}">
+
+                <Button Command="{Binding ClearGridCommand}"
+                            HorizontalAlignment="Left"
+                            Padding="10,5"
+                            MinWidth="100"
+                            Background="Transparent"
+                            Foreground="{StaticResource TextPrimary}">
+                        <svg:Svg Path="/Assets/trash.svg"
+                                Width="30"
+                                Height="30"
+                                HorizontalAlignment="Left"
+                                Stretch="Uniform"/>
                     </Button>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
 
-        <StackPanel Orientation="Horizontal" 
-                    HorizontalAlignment="Stretch" 
-                    Margin="10">
-            <Button Content="Clear Grid"
-                    Command="{Binding ClearGridCommand}"
-                    HorizontalAlignment="Left"
-                    Padding="10,5"
-                    MinWidth="100"
-                    Background="Blue"
-                    Foreground="{StaticResource TextPrimary}"/>
-            <Button Content="Rotate Ship" 
-                    Command="{Binding RotateActiveShipCommand}"
-                    HorizontalAlignment="Right"
-                    Padding="10,5"
-                    MinWidth="100"
-                    Background="Blue"
-                    Foreground="{StaticResource TextPrimary}"/>
+                    <Button Command="{Binding RotateActiveShipCommand}"
+                            HorizontalAlignment="Right"
+                            Padding="10,5"
+                            MinWidth="100"
+                            Background="Transparent"
+                            Foreground="{StaticResource TextPrimary}">
+                        <svg:Svg Path="/Assets/rotate.svg"
+                                Width="30"
+                                Height="30"
+                                HorizontalAlignment="Right"
+                                Stretch="Uniform"/>
+                </Button>
+            </Grid>
         </StackPanel>
 
-        <Button Width="234"
+        <Button Grid.Row="2"
+                Width="234"
                 Height="58"
                 CornerRadius="26"
                 Background="{StaticResource Primary}"
                 Foreground="{StaticResource TextPrimary}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
-                Command="{Binding StartGame}">
+                Command="{Binding StartGame}"
+                Margin="0,0,0,20">
             <TextBlock Text="CONFIRM"
-                       FontSize="32"
+                       FontSize="30"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"/>
         </Button>
-        
-    </StackPanel>
+    </Grid>
 </Window>

@@ -3,67 +3,67 @@
     "gridSize": 7,
     "tiles": [
       [
-        "hit",
-        "miss",
         "empty",
         "empty",
-        "hit",
-        "miss",
-        "miss"
+        "empty",
+        "empty",
+        "ship5",
+        "empty",
+        "ship4"
       ],
       [
+        "empty",
+        "empty",
+        "ship3",
+        "empty",
+        "ship5",
+        "ship1",
+        "ship4"
+      ],
+      [
+        "empty",
+        "empty",
+        "ship3",
+        "empty",
+        "ship5",
         "hit",
-        "miss",
-        "miss",
+        "ship4"
+      ],
+      [
+        "empty",
+        "empty",
+        "ship3",
         "empty",
         "hit",
-        "miss",
-        "miss"
+        "empty",
+        "empty"
       ],
       [
-        "hit",
-        "miss",
-        "hit",
-        "miss",
-        "hit",
-        "miss",
-        "miss"
+        "empty",
+        "ship2",
+        "ship2",
+        "empty",
+        "empty",
+        "empty",
+        "empty"
       ],
       [
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
         "miss",
-        "miss",
-        "hit",
-        "miss",
-        "miss",
-        "miss",
-        "miss"
+        "empty"
       ],
       [
-        "miss",
-        "miss",
-        "hit",
-        "miss",
-        "miss",
-        "miss",
-        "hit"
-      ],
-      [
-        "miss",
-        "miss",
-        "hit",
-        "miss",
-        "hit",
-        "miss",
-        "hit"
-      ],
-      [
-        "miss",
-        "miss",
-        "miss",
-        "miss",
-        "hit",
-        "miss",
-        "miss"
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty",
+        "empty"
       ]
     ]
   },
@@ -112,8 +112,8 @@
       "color": "grey",
       "rotation": 90,
       "name": "ship5",
-      "row": 2,
-      "col": 2
+      "row": 0,
+      "col": 4
     },
     {
       "id": 3,
@@ -121,17 +121,8 @@
       "color": "green",
       "rotation": 90,
       "name": "ship3",
-      "row": 0,
-      "col": 4
-    },
-    {
-      "id": 1,
-      "size": 2,
-      "color": "purple",
-      "rotation": 90,
-      "name": "ship1",
-      "row": 4,
-      "col": 6
+      "row": 1,
+      "col": 2
     },
     {
       "id": 4,
@@ -140,16 +131,25 @@
       "rotation": 90,
       "name": "ship4",
       "row": 0,
-      "col": 0
+      "col": 6
+    },
+    {
+      "id": 1,
+      "size": 2,
+      "color": "purple",
+      "rotation": 90,
+      "name": "ship1",
+      "row": 1,
+      "col": 5
     },
     {
       "id": 2,
       "size": 2,
       "color": "orange",
-      "rotation": 90,
+      "rotation": 0,
       "name": "ship2",
-      "row": 5,
-      "col": 4
+      "row": 4,
+      "col": 1
     }
   ],
   "active_ship": null

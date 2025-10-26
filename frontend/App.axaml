@@ -1,18 +1,21 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="BattleshipsAvalonia.App"
              xmlns:local="using:BattleshipsAvalonia"
+             xmlns:svg="clr-namespace:Avalonia.Svg.Skia;assembly=Avalonia.Svg.Skia"
+             x:Class="BattleshipsAvalonia.App"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+    <!-- Data templates -->
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
   
+    <!-- Styles -->
     <Application.Styles>
-        <FluentTheme />
+        <FluentTheme/>
     </Application.Styles>
 
+    <!-- Resources -->
     <Application.Resources>
         <SolidColorBrush x:Key="Primary" Color="#4DA8FF" />
         <SolidColorBrush x:Key="Secondary" Color="#1A3C5C" />
@@ -24,4 +27,5 @@
         <SolidColorBrush x:Key="TextPrimary" Color="#E6ECEF" />
         <SolidColorBrush x:Key="TextSecondary" Color="#A0A8B0" />
     </Application.Resources>
+
 </Application>
