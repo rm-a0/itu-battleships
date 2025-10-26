@@ -60,16 +60,7 @@ public partial class MainWindowViewModel : ObservableObject
         catch (Exception ex)
         {
             var viewModel = new MessagePopupViewModel(ex.Message);
-            var popup = new MessagePopup { DataContext = viewModel };
-            var popupWindow = new Window
-            {
-                Content = popup,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                SizeToContent = SizeToContent.WidthAndHeight,
-                CanResize = false,
-                Title = "Error"
-            };
-            await popupWindow.ShowDialog(window);
+            await MessagePopupService.ShowPopupAsync<MessagePopup, MessagePopupViewModel>(window, viewModel);
         }
     }
 }

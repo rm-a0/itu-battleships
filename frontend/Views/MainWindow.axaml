@@ -11,7 +11,8 @@
         WindowStartupLocation="CenterScreen"
         Width="412" Height="917"
         MinWidth="412" MinHeight="600"
-        Background="{StaticResource Background}">
+        Background="{StaticResource Background}"
+        SystemDecorations="None">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
