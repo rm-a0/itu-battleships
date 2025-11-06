@@ -78,6 +78,8 @@ public partial class GameBoardViewModel : ObservableObject
     {
         await ShowPopupAsync("Do you really want to surrender?");
         await ShowPopupAsync("You Lost!");
+        var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+        mainWindow.Show();
         _parentWindow?.Close();
     }
 

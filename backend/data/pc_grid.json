@@ -1,49 +1,12 @@
 {
-  "gridSize": 7,
+  "gridSize": 6,
   "tiles": [
     [
       "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
-    ],
-    [
-      "ship-ship1",
-      "ship-ship1",
-      "empty",
-      "empty",
-      "miss",
-      "empty",
-      "empty"
-    ],
-    [
-      "empty",
       "ship-ship4",
       "ship-ship4",
-      "hit",
-      "empty",
-      "empty",
-      "empty"
-    ],
-    [
-      "empty",
-      "miss",
-      "empty",
-      "ship-ship5",
-      "ship-ship5",
-      "ship-ship5",
-      "ship-ship5"
-    ],
-    [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "ship-ship3",
-      "empty",
+      "ship-ship4",
+      "ship-ship1",
       "empty"
     ],
     [
@@ -51,18 +14,40 @@
       "empty",
       "empty",
       "empty",
-      "ship-ship3",
-      "empty",
-      "ship-ship2"
+      "ship-ship1",
+      "empty"
     ],
     [
       "empty",
+      "ship-ship5",
       "empty",
       "empty",
+      "empty",
+      "empty"
+    ],
+    [
+      "empty",
+      "ship-ship5",
+      "ship-ship2",
+      "ship-ship2",
+      "empty",
+      "empty"
+    ],
+    [
+      "empty",
+      "ship-ship5",
+      "empty",
+      "empty",
+      "empty",
+      "empty"
+    ],
+    [
+      "empty",
+      "ship-ship5",
       "empty",
       "ship-ship3",
-      "empty",
-      "ship-ship2"
+      "ship-ship3",
+      "ship-ship3"
     ]
   ]
 }
