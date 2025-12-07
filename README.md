@@ -54,6 +54,7 @@ This project implements a single-player Battleships game where the player places
 ## Implementation Details
 
 ### Code Structure
+```txt
 backend/
 ├── data/
 │   ├── curr_screen.json       # Current screen state
@@ -71,6 +72,7 @@ frontend/
 ├── ViewModels/                # MVVM view models
 ├── Views/                     # Avalonia windows and controls
 └── Program.cs                 # Entry point + DI setup
+```
 
 ### Backend API
 Express server running on http://localhost:5000
