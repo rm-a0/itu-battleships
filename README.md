@@ -1,32 +1,91 @@
-## ITU Project - Battleships
+# Battleships Game
+## Overview
+Battleships game implementation with a Node.js backend for game state management and a C# Avalonia frontend for the user interface. Designed for a user interface design class project.
 
-### Setup
-- need to have installed and included in path: node, npm
-- open 2 terminals
-- in 1st terminal run:
+## Table of Contents
+- [Summary](#summary)
+- [How to Use](#how-to-use)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+- [Implementation Details](#implementation-details)
+  - [Code Structure](#code-structure)
+  - [Backend API](#backend-api)
+  - [Frontend UI](#frontend-ui)
 
-```shell
-git clone <repo URL>
-cd battleships_game
-cd frontend
-npm install  # install dependencies for frontend
-```
+## Summary
+This project implements a single-player Battleships game where the player places ships on a grid and battles against a computer opponent. The backend handles game logic and state persistence using JSON files, while the frontend provides an interactive desktop UI built with Avalonia.
 
-- in 2nd terminal in battleships_game directory run:
-```shell
-cd backend
-npm install  #install dependencies for backend
-```
+**Key Features:**
+- Grid-Based Gameplay: Customizable board sizes (7x7 or 10x10)
+- Ship Placement: Interactive planning phase with rotation and validation
+- Turn-Based Combat: Player and PC attacks with hit/miss tracking
+- State Management: API endpoints for screens, grids, and settings
+- Simple Persistence: JSON files for game data
 
-- now when all dependencies are installed, run in frontend directory:
-```shell
-npm start
-```
+## How to Use
 
-- and in backend directory:
-```shell
-npm start
-```
+### Requirements
+- Node.js (with npm)
+- .NET SDK 9.0
+- Git
 
-##### Open frontend on
-- http://localhost:3000/
+### Installation
+1. Clone the repository:
+   git clone <repo URL>
+   cd battleships_game
+
+2. Install backend dependencies:
+   cd backend
+   npm install
+
+3. Restore frontend dependencies:
+   cd ../frontend
+   dotnet restore
+
+4. Run the backend (in backend folder):
+   cd ../backend
+   npm start
+
+5. Build and run the frontend (in frontend folder, must specify framework):
+   cd ../frontend
+   dotnet build --framework net9.0
+   dotnet run --framework net9.0
+
+## Implementation Details
+
+### Code Structure
+backend/
+├── data/
+│   ├── curr_screen.json       # Current screen state
+│   ├── game_settings.json     # Board size settings
+│   ├── pc_grid.json           # PC grid data
+│   ├── planning.json          # Ship planning data
+│   └── player_grid.json       # Player grid data
+└── src/
+    ├── data_interfaces.ts     # TypeScript interfaces
+    └── server.ts              # Express server and API
+
+frontend/
+├── Models/                    # Data models (Grid, Ship, etc.)
+├── Services/                  # ApiService.cs - HTTP communication
+├── ViewModels/                # MVVM view models
+├── Views/                     # Avalonia windows and controls
+└── Program.cs                 # Entry point + DI setup
+
+### Backend API
+Express server running on http://localhost:5000
+Main endpoints:
+- /api/screen            → current game screen
+- /api/settings          → selected board size
+- /api/player-grid       → player grid state
+- /api/pc-grid           → computer grid state
+- /api/planning/*        → ship placement, active ship, rotation, colors
+
+All data persisted in JSON files inside backend/data/.
+
+### Frontend UI
+Avalonia .NET 9.0 desktop application using MVVM pattern:
+- Main window → board size selection (7x7 / 10x10)
+- Planning window → interactive ship placement with drag/rotate
+- Game window → turn-based combat (not fully implemented yet)
+- All UI updates via async calls to the Node.js backend
