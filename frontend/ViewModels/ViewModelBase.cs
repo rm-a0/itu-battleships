@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿// Author: Michal Repcik (xrepcim00)
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace BattleshipsAvalonia.ViewModels;
 

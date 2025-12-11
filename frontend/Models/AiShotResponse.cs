@@ -1,3 +1,4 @@
+// Author: Michal Repcik (xrepcim00)
 using System.Text.Json.Serialization;
 
 namespace BattleshipsAvalonia.Models;

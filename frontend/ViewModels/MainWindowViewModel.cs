@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿// Author: Michal Repcik (xrepcim00)
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;

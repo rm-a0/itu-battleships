@@ -1,3 +1,4 @@
+// Author: Michal Repcik (xrepcim00)
 using Avalonia.Controls;
 using BattleshipsAvalonia.Models;
 using BattleshipsAvalonia.Services;

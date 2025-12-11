@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿// Author: Michal Repcik (xrepcim00)
+using Avalonia;
 using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using BattleshipsAvalonia.Services;

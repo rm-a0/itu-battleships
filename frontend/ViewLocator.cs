@@ -1,3 +1,4 @@
+// Author: Michal Repcik (xrepcim00)
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;

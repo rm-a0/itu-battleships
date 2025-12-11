@@ -1,3 +1,4 @@
+// Author: Michal Repcik (xrepcim00)
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;

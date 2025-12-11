@@ -1,3 +1,4 @@
+// Author: Michal Repcik (xrepcim00)
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;

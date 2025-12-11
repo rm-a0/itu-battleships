@@ -1,3 +1,4 @@
+// Author: Michal Repcik (xrepcim00)
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
