@@ -330,7 +330,7 @@ app.post('/api/set-available-ships', (req: Request, res: Response) => {
       }
       res.status(200).json({ message: "Active ship removed successfully" });
     });
-  })
+  });
 });
 
 // ------ SETTINGS END
@@ -429,51 +429,54 @@ function addAdjacentTargets(row: number, col: number, gridSize: number): void {
 app.post("/api/ai-shot", (req: Request, res: Response) => {
   const { gridSize, tiles, difficulty }: IAiShotRequest = req.body;
 
+  // Validate inputs
   if (!gridSize || !tiles || !difficulty) {
-    return res.status(400).json({ error: "Missing required fields: gridSize, tiles, difficulty" });
+    res.status(400).json({ error: "Missing required fields: gridSize, tiles, difficulty" });
+  } else {
+    let shot: { row: number; col: number } | null = null;
+
+    // Select AI strategy based on difficulty
+    switch (difficulty.toLowerCase()) {
+      case "easy":
+        shot = aiShootEasy(tiles, gridSize);
+        break;
+      case "medium":
+        shot = aiShootMedium(tiles, gridSize);
+        break;
+      case "hard":
+        shot = aiShootHard(tiles, gridSize);
+        break;
+      default:
+        res.status(400).json({ error: "Invalid difficulty. Must be 'easy', 'medium', or 'hard'" });
+        return;
+    }
+
+    if (!shot) {
+      res.status(400).json({ error: "No valid cells to shoot" });
+    } else {
+      // Determine result
+      const currentTile = tiles[shot.row][shot.col];
+      const result = (currentTile !== "empty" && currentTile !== "miss" && currentTile !== "hit") ? "hit" : "miss";
+
+      // For medium/hard: Add adjacent targets when hit
+      if ((difficulty.toLowerCase() === "medium" || difficulty.toLowerCase() === "hard") && result === "hit") {
+        addAdjacentTargets(shot.row, shot.col, gridSize);
+        aiState.lastHit = shot;
+        aiState.huntMode = true;
+      } else if (aiState.targetQueue.length === 0) {
+        aiState.huntMode = false;
+        aiState.lastHit = undefined;
+      }
+
+      const response: IAiShotResponse = {
+        row: shot.row,
+        col: shot.col,
+        result: result
+      };
+
+      res.json(response);
+    }
   }
-
-  let shot: { row: number; col: number } | null = null;
-
-  switch (difficulty.toLowerCase()) {
-    case "easy":
-      shot = aiShootEasy(tiles, gridSize);
-      break;
-    case "medium":
-      shot = aiShootMedium(tiles, gridSize);
-      break;
-    case "hard":
-      shot = aiShootHard(tiles, gridSize);
-      break;
-    default:
-      return res.status(400).json({ error: "Invalid difficulty. Must be 'easy', 'medium', or 'hard'" });
-  }
-
-  if (!shot) {
-    return res.status(400).json({ error: "No valid cells to shoot" });
-  }
-
-  // Determine result
-  const currentTile = tiles[shot.row][shot.col];
-  const result = (currentTile !== "empty" && currentTile !== "miss" && currentTile !== "hit") ? "hit" : "miss";
-
-  // For medium/hard: Add adjacent targets when hit
-  if ((difficulty.toLowerCase() === "medium" || difficulty.toLowerCase() === "hard") && result === "hit") {
-    addAdjacentTargets(shot.row, shot.col, gridSize);
-    aiState.lastHit = shot;
-    aiState.huntMode = true;
-  } else if (aiState.targetQueue.length === 0) {
-    aiState.huntMode = false;
-    aiState.lastHit = undefined;
-  }
-
-  const response: IAiShotResponse = {
-    row: shot.row,
-    col: shot.col,
-    result: result
-  };
-
-  res.json(response);
 });
 
 // ------ AI SHOOTING END
