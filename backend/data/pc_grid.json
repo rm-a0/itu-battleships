@@ -3,51 +3,51 @@
   "tiles": [
     [
       "empty",
-      "ship-ship4",
-      "ship-ship4",
-      "ship-ship4",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty"
+    ],
+    [
+      "empty",
+      "ship-ship5",
+      "ship-ship5",
+      "ship-ship5",
+      "ship-ship5",
+      "empty"
+    ],
+    [
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty",
+      "empty"
+    ],
+    [
+      "empty",
+      "empty",
+      "miss",
+      "empty",
       "ship-ship1",
-      "empty"
+      "ship-ship1"
     ],
     [
-      "empty",
-      "empty",
-      "empty",
-      "empty",
-      "ship-ship1",
-      "empty"
-    ],
-    [
-      "empty",
-      "ship-ship5",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
-    ],
-    [
-      "empty",
-      "ship-ship5",
-      "ship-ship2",
-      "ship-ship2",
-      "empty",
-      "empty"
-    ],
-    [
-      "empty",
-      "ship-ship5",
-      "empty",
-      "empty",
-      "empty",
-      "empty"
-    ],
-    [
-      "empty",
-      "ship-ship5",
-      "empty",
       "ship-ship3",
       "ship-ship3",
-      "ship-ship3"
+      "ship-ship3",
+      "empty",
+      "empty",
+      "empty"
+    ],
+    [
+      "ship-ship2",
+      "ship-ship2",
+      "ship-ship4",
+      "ship-ship4",
+      "ship-ship4",
+      "empty"
     ]
   ]
 }

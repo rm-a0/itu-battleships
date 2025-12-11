@@ -3,51 +3,51 @@
     "gridSize": 6,
     "tiles": [
       [
-        "empty",
-        "empty",
-        "ship3",
-        "empty",
-        "ship1",
-        "empty"
-      ],
-      [
         "ship5",
         "empty",
         "ship3",
+        "empty",
         "ship4",
-        "ship1",
-        "empty"
+        "miss"
       ],
       [
         "ship5",
         "empty",
         "ship3",
-        "ship4",
         "empty",
-        "empty"
+        "ship4",
+        "ship1"
+      ],
+      [
+        "ship5",
+        "empty",
+        "ship3",
+        "empty",
+        "ship4",
+        "ship1"
       ],
       [
         "ship5",
         "empty",
         "empty",
-        "ship4",
+        "empty",
         "empty",
         "empty"
       ],
       [
-        "ship5",
         "empty",
         "empty",
         "empty",
         "ship2",
+        "empty",
         "empty"
       ],
       [
         "empty",
         "empty",
         "empty",
-        "empty",
         "ship2",
+        "empty",
         "empty"
       ]
     ]
@@ -97,7 +97,7 @@
       "color": "grey",
       "rotation": 90,
       "name": "ship5",
-      "row": 1,
+      "row": 0,
       "col": 0
     },
     {
@@ -115,8 +115,8 @@
       "color": "purple",
       "rotation": 90,
       "name": "ship1",
-      "row": 0,
-      "col": 4
+      "row": 1,
+      "col": 5
     },
     {
       "id": 4,
@@ -124,8 +124,8 @@
       "color": "blue",
       "rotation": 90,
       "name": "ship4",
-      "row": 1,
-      "col": 3
+      "row": 0,
+      "col": 4
     },
     {
       "id": 2,
@@ -134,7 +134,7 @@
       "rotation": 90,
       "name": "ship2",
       "row": 4,
-      "col": 4
+      "col": 3
     }
   ],
   "active_ship": null

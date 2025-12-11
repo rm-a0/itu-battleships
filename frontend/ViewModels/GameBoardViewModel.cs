@@ -53,7 +53,6 @@ public partial class GameBoardViewModel : ObservableObject
             PlayerGrid = await _apiService.GetPlayerGridAsync();
             PcGrid = await _apiService.GetPcGridAsync();
 
-            // Cache difficulty setting at game start
             var settings = await _apiService.GetSettingsAsync();
             _difficulty = settings.Difficulty ?? "easy";
 
@@ -151,10 +150,7 @@ public partial class GameBoardViewModel : ObservableObject
     {
         try
         {
-            // Use cached difficulty setting
             var aiShot = await _apiService.GetAiShotAsync(PlayerGrid.GridSize, PlayerGrid.Tiles, _difficulty);
-
-            // Update the player grid with the shot result
             PlayerGrid.Tiles[aiShot.Row][aiShot.Col] = aiShot.Result;
 
             await _apiService.UpdatePlayerGridAsync(PlayerGrid, mode: null);
