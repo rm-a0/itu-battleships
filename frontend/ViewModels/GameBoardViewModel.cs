@@ -30,6 +30,8 @@ public partial class GameBoardViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<int> _gridIndices = new();
 
+    private string _difficulty = "easy";
+
     public GameBoardViewModel(IServiceProvider serviceProvider, ApiService apiService)
     {
         _serviceProvider = serviceProvider;
@@ -50,6 +52,10 @@ public partial class GameBoardViewModel : ObservableObject
 
             PlayerGrid = await _apiService.GetPlayerGridAsync();
             PcGrid = await _apiService.GetPcGridAsync();
+
+            // Cache difficulty setting at game start
+            var settings = await _apiService.GetSettingsAsync();
+            _difficulty = settings.Difficulty ?? "easy";
 
             GridIndices.Clear();
             for (int i = 0; i < PlayerGrid.GridSize * PlayerGrid.GridSize; i++)
@@ -145,12 +151,8 @@ public partial class GameBoardViewModel : ObservableObject
     {
         try
         {
-            // Get current difficulty from settings
-            var settings = await _apiService.GetSettingsAsync();
-            string difficulty = settings.Difficulty ?? "easy";
-
-            // Call backend AI shot endpoint
-            var aiShot = await _apiService.GetAiShotAsync(PlayerGrid.GridSize, PlayerGrid.Tiles, difficulty);
+            // Use cached difficulty setting
+            var aiShot = await _apiService.GetAiShotAsync(PlayerGrid.GridSize, PlayerGrid.Tiles, _difficulty);
 
             // Update the player grid with the shot result
             PlayerGrid.Tiles[aiShot.Row][aiShot.Col] = aiShot.Result;

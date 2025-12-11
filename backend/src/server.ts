@@ -338,6 +338,8 @@ app.post('/api/set-available-ships', (req: Request, res: Response) => {
 // ------ AI SHOOTING START
 
 // AI shooting state for medium/hard difficulty
+// Note: This is a global state and works for single-player games.
+// For multi-player support, this should be stored per game session.
 interface AiState {
   lastHit?: { row: number; col: number };
   targetQueue: { row: number; col: number }[];
@@ -430,7 +432,7 @@ app.post("/api/ai-shot", (req: Request, res: Response) => {
   const { gridSize, tiles, difficulty }: IAiShotRequest = req.body;
 
   // Validate inputs
-  if (!gridSize || !tiles || !difficulty) {
+  if (gridSize == null || !tiles || !difficulty) {
     res.status(400).json({ error: "Missing required fields: gridSize, tiles, difficulty" });
   } else {
     let shot: { row: number; col: number } | null = null;
@@ -454,9 +456,10 @@ app.post("/api/ai-shot", (req: Request, res: Response) => {
     if (!shot) {
       res.status(400).json({ error: "No valid cells to shoot" });
     } else {
-      // Determine result
+      // Determine result - explicitly check if tile contains a ship
       const currentTile = tiles[shot.row][shot.col];
-      const result = (currentTile !== "empty" && currentTile !== "miss" && currentTile !== "hit") ? "hit" : "miss";
+      const isShip = currentTile.startsWith("ship-") || (currentTile !== "empty" && currentTile !== "miss" && currentTile !== "hit");
+      const result = isShip ? "hit" : "miss";
 
       // For medium/hard: Add adjacent targets when hit
       if ((difficulty.toLowerCase() === "medium" || difficulty.toLowerCase() === "hard") && result === "hit") {
