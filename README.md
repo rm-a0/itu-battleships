@@ -16,10 +16,12 @@ Battleships game implementation with a Node.js backend for game state management
 This project implements a single-player Battleships game where the player places ships on a grid and battles against a computer opponent. The backend handles game logic and state persistence using JSON files, while the frontend provides an interactive desktop UI built with Avalonia.
 
 **Key Features:**
-- Grid-Based Gameplay: Customizable board sizes (7x7 or 10x10)
+- Grid-Based Gameplay: Customizable board sizes (6x6, 7x7, 8x8, 9x9)
+- AI Difficulty Levels: Three AI opponents (Easy, Medium, Hard) with different shooting strategies
 - Ship Placement: Interactive planning phase with rotation and validation
 - Turn-Based Combat: Player and PC attacks with hit/miss tracking
-- State Management: API endpoints for screens, grids, and settings
+- Surrender Options: Direct surrender or surrender with confirmation modal
+- State Management: API endpoints for screens, grids, settings, and AI shots
 - Simple Persistence: JSON files for game data
 
 ## How to Use
@@ -78,16 +80,22 @@ frontend/
 Express server running on http://localhost:5000
 Main endpoints:
 - /api/screen            → current game screen
-- /api/settings          → selected board size
+- /api/settings          → selected board size and AI difficulty
 - /api/player-grid       → player grid state
 - /api/pc-grid           → computer grid state
 - /api/planning/*        → ship placement, active ship, rotation, colors
+- /api/ai-shot           → AI shot calculation with difficulty-based strategies
 
 All data persisted in JSON files inside backend/data/.
 
 ### Frontend UI
 Avalonia .NET 9.0 desktop application using MVVM pattern:
-- Main window → board size selection (7x7 / 10x10)
+- Main window → board size selection (6x6 / 7x7 / 8x8 / 9x9) and AI difficulty (Easy / Medium / Hard)
 - Planning window → interactive ship placement with drag/rotate
-- Game window → turn-based combat (not fully implemented yet)
+- Game window → turn-based combat with two surrender options (direct and confirmed)
 - All UI updates via async calls to the Node.js backend
+
+### AI Difficulty Levels
+- **Easy**: Random shooting across the board
+- **Medium**: Random shooting with basic targeting of adjacent cells after a hit
+- **Hard**: Advanced shooting with checkerboard pattern optimization and targeting after hits
