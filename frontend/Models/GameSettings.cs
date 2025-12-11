@@ -7,4 +7,7 @@ public class GameSettings
 {
     [JsonPropertyName("selectedBoard")]
     public string SelectedBoard { get; init; }
+
+    [JsonPropertyName("difficulty")]
+    public string? Difficulty { get; init; }
 }

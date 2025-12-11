@@ -18,7 +18,7 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="*,*,*" 
+    <Grid RowDefinitions="*,*,*,*" 
           HorizontalAlignment="Center"
           VerticalAlignment="Stretch"
           MaxWidth="280">
@@ -70,7 +70,36 @@
             </StackPanel>
         </Border>
 
-        <Button Grid.Row="2"
+        <Border Grid.Row="2"
+                CornerRadius="22"
+                Height="41"
+                Width="205"
+                Background="{StaticResource Secondary}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="30"
+                        HorizontalAlignment="Center">
+                <Button Content="&lt;"
+                        Classes="board-size-button"
+                        Foreground="{StaticResource TextSecondary}"
+                        Background="{StaticResource Secondary}"
+                        Command="{Binding DecreaseDifficultyCommand}"/>
+                <TextBlock x:Name="DifficultyDisplay"
+                           Text="{Binding CurrentDifficulty}"
+                           FontSize="16"
+                           Foreground="{StaticResource TextSecondary}"
+                           VerticalAlignment="Center"
+                           Margin="10,0" />
+                <Button Content="&gt;"
+                        Foreground="{StaticResource TextSecondary}"
+                        Classes="board-size-button"
+                        Background="{StaticResource Secondary}"
+                        Command="{Binding IncreaseDifficultyCommand}"/>
+            </StackPanel>
+        </Border>
+
+        <Button Grid.Row="3"
                 Width="234"
                 Height="58"
                 CornerRadius="26"

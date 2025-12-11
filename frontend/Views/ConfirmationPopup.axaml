@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BattleshipsAvalonia.ViewModels"
+             x:Class="BattleshipsAvalonia.Views.ConfirmationPopup"
+             x:DataType="vm:ConfirmationPopupViewModel">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Border Background="{StaticResource BackgroundSecondary}" 
+                CornerRadius="20" 
+                Width="300" 
+                MaxHeight="200"
+                VerticalAlignment="Center" 
+                HorizontalAlignment="Center">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0"
+                           FontSize="18"
+                           Text="{Binding Message}" 
+                           TextWrapping="Wrap"
+                           Foreground="{StaticResource TextPrimary}"
+                           Margin="20,40,20,40"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center" />
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0"
+                            Content="Cancel" 
+                            FontSize="18"
+                            Command="{Binding CancelCommand}" 
+                            CommandParameter="{Binding $parent[Window]}"
+                            HorizontalAlignment="Stretch"
+                            Foreground="{StaticResource TextPrimary}"
+                            Background="{StaticResource Secondary}"
+                            VerticalContentAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            Padding="11"
+                            Margin="0,0,0,0"
+                            CornerRadius="0,0,0,20" />
+                    <Button Grid.Column="1"
+                            Content="OK" 
+                            FontSize="18"
+                            Command="{Binding ConfirmCommand}" 
+                            CommandParameter="{Binding $parent[Window]}"
+                            HorizontalAlignment="Stretch"
+                            Foreground="{StaticResource TextPrimary}"
+                            Background="{StaticResource ErrorRed}"
+                            VerticalContentAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            Padding="11"
+                            Margin="0,0,0,0"
+                            CornerRadius="0,0,20,0" />
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -87,9 +87,9 @@ public class ApiService
         return await GetAsync<GameSettings>("api/settings");
     }
 
-    public async Task UpdateSettingsAsync(string selectedBoard)
+    public async Task UpdateSettingsAsync(string selectedBoard, string? difficulty = null)
     {
-        await PostAsync("api/settings", new { selectedBoard });
+        await PostAsync("api/settings", new { selectedBoard, difficulty });
     }
 
     public async Task<PlanningData> GetPlanningDataAsync()
@@ -219,5 +219,16 @@ public class ApiService
     public async Task DeselectActiveShipAsync()
     {
         await PostAsync("api/planning/deselect-active");
+    }
+
+    public async Task<AiShotResponse> GetAiShotAsync(int gridSize, string[][] tiles, string difficulty)
+    {
+        var body = new { gridSize, tiles, difficulty };
+        var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+        var response = await Client.PostAsync("api/ai-shot", content);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<AiShotResponse>(json, Options) 
+            ?? throw new InvalidOperationException("Failed to deserialize AI shot response");
     }
 }

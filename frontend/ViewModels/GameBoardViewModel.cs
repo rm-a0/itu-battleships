@@ -84,6 +84,21 @@ public partial class GameBoardViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task SurrenderWithConfirm()
+    {
+        var confirmViewModel = new ConfirmationPopupViewModel("Do you really want to surrender?");
+        await MessagePopupService.ShowPopupAsync<ConfirmationPopup, ConfirmationPopupViewModel>(_parentWindow!, confirmViewModel);
+        
+        if (confirmViewModel.IsConfirmed)
+        {
+            await ShowPopupAsync("You Lost!");
+            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+            mainWindow.Show();
+            _parentWindow?.Close();
+        }
+    }
+
+    [RelayCommand]
     private async Task ShootShip(int index)
     {
         try
@@ -130,25 +145,15 @@ public partial class GameBoardViewModel : ObservableObject
     {
         try
         {
-            var validCells = new System.Collections.Generic.List<(int row, int col)>();
-            for (int r = 0; r < PlayerGrid.GridSize; r++)
-            {
-                for (int c = 0; c < PlayerGrid.GridSize; c++)
-                {
-                    string tile = PlayerGrid.Tiles[r][c];
-                    if (tile != "hit" && tile != "miss")
-                        validCells.Add((r, c));
-                }
-            }
+            // Get current difficulty from settings
+            var settings = await _apiService.GetSettingsAsync();
+            string difficulty = settings.Difficulty ?? "easy";
 
-            if (validCells.Count == 0)
-                return;
+            // Call backend AI shot endpoint
+            var aiShot = await _apiService.GetAiShotAsync(PlayerGrid.GridSize, PlayerGrid.Tiles, difficulty);
 
-            var random = new Random();
-            var (row, col) = validCells[random.Next(validCells.Count)];
-
-            string currentTile = PlayerGrid.Tiles[row][col];
-            PlayerGrid.Tiles[row][col] = currentTile == "empty" ? "miss" : "hit";
+            // Update the player grid with the shot result
+            PlayerGrid.Tiles[aiShot.Row][aiShot.Col] = aiShot.Result;
 
             await _apiService.UpdatePlayerGridAsync(PlayerGrid, mode: null);
 
