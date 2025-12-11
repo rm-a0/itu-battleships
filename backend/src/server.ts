@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import fs from 'fs';
 import cors from 'cors';
 import path from 'path';
-import { IPlanningData, IPlacedShip, IShip } from './data_interfaces';
+import { IPlanningData, IPlacedShip, IShip, IAiShotRequest, IAiShotResponse } from './data_interfaces';
 
 const app = express();
 const PORT = 5000;
@@ -270,7 +270,7 @@ app.get('/api/settings', (req: Request, res: Response) => {
 
 // Endpoint to update settings
 app.post('/api/settings', (req: Request, res: Response) => {
-  const { selectedBoard } = req.body;
+  const { selectedBoard, difficulty } = req.body;
 
   fs.readFile(settingsPath, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
     if (err) {
@@ -279,9 +279,13 @@ app.post('/api/settings', (req: Request, res: Response) => {
 
     let settings: {
       selectedBoard: string;
+      difficulty?: string;
     } = JSON.parse(data);
 
     settings.selectedBoard = selectedBoard || settings.selectedBoard;
+    if (difficulty !== undefined) {
+      settings.difficulty = difficulty;
+    }
 
     fs.writeFile(settingsPath, JSON.stringify(settings, null, 2), (err: NodeJS.ErrnoException | null) => {
       if (err) {
@@ -326,10 +330,159 @@ app.post('/api/set-available-ships', (req: Request, res: Response) => {
       }
       res.status(200).json({ message: "Active ship removed successfully" });
     });
-  })
+  });
 });
 
 // ------ SETTINGS END
+
+// ------ AI SHOOTING START
+
+// AI shooting state for medium/hard difficulty
+// Note: This is a global state and works for single-player games.
+// For multi-player support, this should be stored per game session.
+interface AiState {
+  lastHit?: { row: number; col: number };
+  targetQueue: { row: number; col: number }[];
+  huntMode: boolean;
+}
+
+const aiState: AiState = {
+  targetQueue: [],
+  huntMode: false
+};
+
+// Helper function: Get valid (untargeted) cells
+function getValidCells(tiles: string[][], gridSize: number): { row: number; col: number }[] {
+  const validCells: { row: number; col: number }[] = [];
+  for (let r = 0; r < gridSize; r++) {
+    for (let c = 0; c < gridSize; c++) {
+      if (tiles[r][c] !== "hit" && tiles[r][c] !== "miss") {
+        validCells.push({ row: r, col: c });
+      }
+    }
+  }
+  return validCells;
+}
+
+// Easy AI: Random shooting
+function aiShootEasy(tiles: string[][], gridSize: number): { row: number; col: number } | null {
+  const validCells = getValidCells(tiles, gridSize);
+  if (validCells.length === 0) return null;
+  return validCells[Math.floor(Math.random() * validCells.length)];
+}
+
+// Medium AI: Random + basic targeting after hit
+function aiShootMedium(tiles: string[][], gridSize: number): { row: number; col: number } | null {
+  const validCells = getValidCells(tiles, gridSize);
+  if (validCells.length === 0) return null;
+
+  // If we have targets in queue, shoot them
+  while (aiState.targetQueue.length > 0) {
+    const target = aiState.targetQueue.shift()!;
+    if (tiles[target.row][target.col] !== "hit" && tiles[target.row][target.col] !== "miss") {
+      return target;
+    }
+  }
+
+  // Random shot
+  return validCells[Math.floor(Math.random() * validCells.length)];
+}
+
+// Hard AI: Advanced targeting with prediction
+function aiShootHard(tiles: string[][], gridSize: number): { row: number; col: number } | null {
+  const validCells = getValidCells(tiles, gridSize);
+  if (validCells.length === 0) return null;
+
+  // If we have targets in queue, prioritize them
+  while (aiState.targetQueue.length > 0) {
+    const target = aiState.targetQueue.shift()!;
+    if (tiles[target.row][target.col] !== "hit" && tiles[target.row][target.col] !== "miss") {
+      return target;
+    }
+  }
+
+  // Advanced: Use checkerboard pattern for efficiency
+  const checkerboardCells = validCells.filter(cell => (cell.row + cell.col) % 2 === 0);
+  if (checkerboardCells.length > 0) {
+    return checkerboardCells[Math.floor(Math.random() * checkerboardCells.length)];
+  }
+
+  // Fallback to any valid cell
+  return validCells[Math.floor(Math.random() * validCells.length)];
+}
+
+// Add adjacent cells to target queue when a hit is made
+function addAdjacentTargets(row: number, col: number, gridSize: number): void {
+  const adjacent = [
+    { row: row - 1, col: col },
+    { row: row + 1, col: col },
+    { row: row, col: col - 1 },
+    { row: row, col: col + 1 }
+  ];
+
+  for (const target of adjacent) {
+    if (target.row >= 0 && target.row < gridSize && target.col >= 0 && target.col < gridSize) {
+      aiState.targetQueue.push(target);
+    }
+  }
+}
+
+// Endpoint for AI shot
+app.post("/api/ai-shot", (req: Request, res: Response) => {
+  const { gridSize, tiles, difficulty }: IAiShotRequest = req.body;
+
+  // Validate inputs
+  if (gridSize == null || !tiles || !difficulty) {
+    res.status(400).json({ error: "Missing required fields: gridSize, tiles, difficulty" });
+  } else {
+    let shot: { row: number; col: number } | null = null;
+
+    // Select AI strategy based on difficulty
+    switch (difficulty.toLowerCase()) {
+      case "easy":
+        shot = aiShootEasy(tiles, gridSize);
+        break;
+      case "medium":
+        shot = aiShootMedium(tiles, gridSize);
+        break;
+      case "hard":
+        shot = aiShootHard(tiles, gridSize);
+        break;
+      default:
+        res.status(400).json({ error: "Invalid difficulty. Must be 'easy', 'medium', or 'hard'" });
+        return;
+    }
+
+    if (!shot) {
+      res.status(400).json({ error: "No valid cells to shoot" });
+    } else {
+      // Determine result - explicitly check if tile contains a ship
+      const currentTile = tiles[shot.row][shot.col];
+      const isShip = currentTile.startsWith("ship-") || (currentTile !== "empty" && currentTile !== "miss" && currentTile !== "hit");
+      const result = isShip ? "hit" : "miss";
+
+      // For medium/hard: Add adjacent targets when hit
+      if ((difficulty.toLowerCase() === "medium" || difficulty.toLowerCase() === "hard") && result === "hit") {
+        addAdjacentTargets(shot.row, shot.col, gridSize);
+        aiState.lastHit = shot;
+        aiState.huntMode = true;
+      } else if (aiState.targetQueue.length === 0) {
+        aiState.huntMode = false;
+        aiState.lastHit = undefined;
+      }
+
+      const response: IAiShotResponse = {
+        row: shot.row,
+        col: shot.col,
+        result: result
+      };
+
+      res.json(response);
+    }
+  }
+});
+
+// ------ AI SHOOTING END
 
 // ------ PLANNING START
 

@@ -30,6 +30,8 @@ public partial class GameBoardViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<int> _gridIndices = new();
 
+    private string _difficulty = "easy";
+
     public GameBoardViewModel(IServiceProvider serviceProvider, ApiService apiService)
     {
         _serviceProvider = serviceProvider;
@@ -50,6 +52,10 @@ public partial class GameBoardViewModel : ObservableObject
 
             PlayerGrid = await _apiService.GetPlayerGridAsync();
             PcGrid = await _apiService.GetPcGridAsync();
+
+            // Cache difficulty setting at game start
+            var settings = await _apiService.GetSettingsAsync();
+            _difficulty = settings.Difficulty ?? "easy";
 
             GridIndices.Clear();
             for (int i = 0; i < PlayerGrid.GridSize * PlayerGrid.GridSize; i++)
@@ -81,6 +87,21 @@ public partial class GameBoardViewModel : ObservableObject
         var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
         mainWindow.Show();
         _parentWindow?.Close();
+    }
+
+    [RelayCommand]
+    private async Task SurrenderWithConfirm()
+    {
+        var confirmViewModel = new ConfirmationPopupViewModel("Do you really want to surrender?");
+        await MessagePopupService.ShowPopupAsync<ConfirmationPopup, ConfirmationPopupViewModel>(_parentWindow!, confirmViewModel);
+        
+        if (confirmViewModel.IsConfirmed)
+        {
+            await ShowPopupAsync("You Lost!");
+            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+            mainWindow.Show();
+            _parentWindow?.Close();
+        }
     }
 
     [RelayCommand]
@@ -130,25 +151,11 @@ public partial class GameBoardViewModel : ObservableObject
     {
         try
         {
-            var validCells = new System.Collections.Generic.List<(int row, int col)>();
-            for (int r = 0; r < PlayerGrid.GridSize; r++)
-            {
-                for (int c = 0; c < PlayerGrid.GridSize; c++)
-                {
-                    string tile = PlayerGrid.Tiles[r][c];
-                    if (tile != "hit" && tile != "miss")
-                        validCells.Add((r, c));
-                }
-            }
+            // Use cached difficulty setting
+            var aiShot = await _apiService.GetAiShotAsync(PlayerGrid.GridSize, PlayerGrid.Tiles, _difficulty);
 
-            if (validCells.Count == 0)
-                return;
-
-            var random = new Random();
-            var (row, col) = validCells[random.Next(validCells.Count)];
-
-            string currentTile = PlayerGrid.Tiles[row][col];
-            PlayerGrid.Tiles[row][col] = currentTile == "empty" ? "miss" : "hit";
+            // Update the player grid with the shot result
+            PlayerGrid.Tiles[aiShot.Row][aiShot.Col] = aiShot.Result;
 
             await _apiService.UpdatePlayerGridAsync(PlayerGrid, mode: null);
 

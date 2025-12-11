@@ -27,3 +27,15 @@ export interface IPlanningData {
   placed_ships: IPlacedShip[] | null;
   active_ship: IPlacedShip | null;
 }
+
+export interface IAiShotRequest {
+  gridSize: number;
+  tiles: string[][];
+  difficulty: string;
+}
+
+export interface IAiShotResponse {
+  row: number;
+  col: number;
+  result: string; // "hit" or "miss"
+}
