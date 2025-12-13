@@ -26,9 +26,15 @@
 │
 └── itu-battleships.sln
 
-Note: 
+Notes: 
 I'm the author of all non-auto-generated files in the frontend.
+
 I'm NOT the author of backend.
+
+The codebase follows clean code principles with an emphasis on self-explanatory, self-documenting code.
+Therefore, I intentionally avoided adding comments, as the code is designed to be readable and understandable
+on its own - a practice I adopted and refined during the ICS and IW5 courses.
+
 To run build and run the project please refer to README.md or use the following commands:
 
 # Terminal 1
